@@ -6,54 +6,54 @@ import Button from "./button";
 export default function Cam() {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const { peerConnection, socket } = useProtocolContext();
+  const { peerConnection, setupCamRef } = useProtocolContext();
 
   const isLocalVideo = useRef<boolean>(false);
 
-  useEffect(() => {
-    // Handling video references
-    async function setupCam() {
-      try {
-        console.log("once");
-        // Get local media stream
-        const localStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "user",
-            width: 650,
-            height: 530,
-            frameRate: { ideal: 30, max: 60 },
-          },
-          audio: true,
-        });
+  setupCamRef.current = async function setupCam() {
+    try {
+      console.log("once");
+      // Get local media stream
+      const localStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: 650,
+          height: 530,
+          frameRate: { ideal: 30, max: 60 },
+        },
+        audio: true,
+      });
 
-        if (localVideoRef.current && !isLocalVideo.current) {
-          localVideoRef.current.srcObject = localStream;
-          localVideoRef.current.style.transform = "scaleX(-1)";
-          isLocalVideo.current = true;
-        }
-
-        if (!peerConnection) {
-          return;
-        }
-
-        // Add local tracks to peer connection
-        localStream.getTracks().forEach((track) => {
-          peerConnection.current.addTrack(track, localStream);
-        });
-
-        peerConnection.current.ontrack = (event) => {
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = event.streams[0];
-            remoteVideoRef.current.style.transform = "scaleX(-1)";
-          }
-        };
-      } catch (error) {
-        console.error("WebRTC setup failed", error);
+      if (localVideoRef.current && !isLocalVideo.current) {
+        localVideoRef.current.srcObject = localStream;
+        localVideoRef.current.style.transform = "scaleX(-1)";
+        isLocalVideo.current = true;
       }
-    }
 
-    setupCam();
-  }, [peerConnection, socket]);
+      if (!peerConnection) {
+        return;
+      }
+      console.log("add peer connection track");
+
+      // Add local tracks to peer connection
+      localStream.getTracks().forEach((track) => {
+        peerConnection.current.addTrack(track, localStream);
+      });
+
+      peerConnection.current.ontrack = (event) => {
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = event.streams[0];
+          remoteVideoRef.current.style.transform = "scaleX(-1)";
+        }
+      };
+    } catch (error) {
+      console.error("WebRTC setup failed", error);
+    }
+  };
+
+  useEffect(() => {
+    setupCamRef.current();
+  }, []);
 
   return (
     <div className="bg-white border border-black flex" id="facecam">

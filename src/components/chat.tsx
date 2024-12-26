@@ -20,7 +20,7 @@ export default function Chat() {
       setChat((prevChat) => [...prevChat, newMessage]);
       inputRef.current.value = "";
 
-      socket!.send(
+      socket.current!.send(
         JSON.stringify({
           type: "chat",
           message: newMessage.message,

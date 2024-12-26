@@ -5,8 +5,14 @@ import {
 import { useSessionContext } from "../../context/SessionContext";
 
 export default function Button() {
-  const { socket, setSocket, peerConnection, connected, setConnected } =
-    useProtocolContext();
+  const {
+    socket,
+    setupWebRTC,
+    peerConnection,
+    connected,
+    setConnected,
+    setupCamRef,
+  } = useProtocolContext();
   const { setChat, roomID } = useSessionContext();
 
   function handleMatch(event: React.MouseEvent<HTMLButtonElement>) {
@@ -14,7 +20,19 @@ export default function Button() {
 
     console.log("Matched");
     handleClose();
-    setSocket(new WebSocket("wss://fe3b-140-112-243-184.ngrok-free.app/ws"));
+    setupCamRef.current();
+    if (!socket.current) {
+      console.log("Connecting to WebSocket server");
+      socket.current = new WebSocket(
+        "wss://3ed8-140-112-243-184.ngrok-free.app/ws"
+      );
+      setupWebRTC(false);
+    } else {
+      console.log("Did i clicked here?");
+      setTimeout(() => {
+        setupWebRTC(true);
+      }, 1000);
+    }
   }
 
   function handleStop(event: React.MouseEvent<HTMLButtonElement>) {
@@ -22,21 +40,22 @@ export default function Button() {
 
     console.log("Stopped");
     handleClose();
-    setSocket(null);
+    socket.current = null;
   }
 
   function handleClose() {
-    setChat(() => []);
     if (connected) {
-      socket!.send(JSON.stringify({ type: "close", roomID: roomID.current }));
+      console.log("Closing connection Instantly");
+      socket.current!.send(
+        JSON.stringify({ type: "close", roomID: roomID.current })
+      );
+      setChat(() => []);
       setConnected(false);
+      roomID.current = "";
     }
 
     if (peerConnection) {
       peerConnection.current.close();
-    }
-    if (socket) {
-      socket.close();
     }
     peerConnection.current = new RTCPeerConnection(configuration);
   }
