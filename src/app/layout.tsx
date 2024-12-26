@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { ProtocolContextProvider } from "../../context/ProtocolContext";
+import { SessionContextProvider } from "../../context/SessionContext";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -25,9 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-bold h-screen w-screen`}
       >
-        {children}
+        <SessionContextProvider>
+          <ProtocolContextProvider>{children}</ProtocolContextProvider>
+        </SessionContextProvider>
       </body>
     </html>
   );
