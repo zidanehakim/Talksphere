@@ -17,7 +17,7 @@ export const configuration = {
 
 interface ProtocolContextType {
   peerConnection: RefObject<RTCPeerConnection>;
-  socket: RefObject<WebSocket | null>;
+  socket: RefObject<WebSocket>;
   setConnected: React.Dispatch<React.SetStateAction<boolean>>;
   connected: boolean;
   setupWebRTC: (isWebsocketOpen: boolean) => void;
@@ -36,7 +36,9 @@ export const ProtocolContextProvider = ({
   const peerConnection = useRef<RTCPeerConnection>(
     new RTCPeerConnection(configuration)
   );
-  const socket = useRef<WebSocket | null>(null);
+  const socket = useRef<WebSocket>(
+    new WebSocket("wss://4378-140-112-243-184.ngrok-free.app/ws")
+  );
   const { chat, setChat, roomID } = useSessionContext();
   const [connected, setConnected] = useState(false);
   const setupCamRef = useRef<() => void>(() => {});

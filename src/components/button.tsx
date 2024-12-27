@@ -23,9 +23,6 @@ export default function Button() {
     setupCamRef.current();
     if (!socket.current) {
       console.log("Connecting to WebSocket server");
-      socket.current = new WebSocket(
-        "wss://3ed8-140-112-243-184.ngrok-free.app/ws"
-      );
       setupWebRTC(false);
     } else {
       console.log("Did i clicked here?");
@@ -40,7 +37,6 @@ export default function Button() {
 
     console.log("Stopped");
     handleClose();
-    socket.current = null;
   }
 
   function handleClose() {
