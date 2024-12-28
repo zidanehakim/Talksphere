@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
 import { useProtocolContext } from "../../context/ProtocolContext";
-
 import Button from "./button";
 
 export default function Cam() {
@@ -17,8 +16,6 @@ export default function Cam() {
       const localStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: "user",
-          width: 650,
-          height: 530,
           frameRate: { ideal: 30, max: 60 },
         },
         audio: true,
@@ -53,26 +50,24 @@ export default function Cam() {
 
   useEffect(() => {
     setupCamRef.current();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="bg-white border border-black flex" id="facecam">
-      {/* Remote Video Container */}
-      <div className="m-auto w-[650px] h-[530px] bg-black flex">
-        <video
-          autoPlay
-          ref={remoteVideoRef}
-          className="m-auto w-full h-full object-contain"
-        ></video>
-      </div>
-
-      {/* Local Video Container */}
-      <div className="m-auto w-[650px] h-[530px] bg-black flex flex-col">
+    <div className="m-auto w-full h-full grid grid-cols-[1fr_1fr] grid-rows-1">
+      <div className="w-full-full">
         <video
           muted
           autoPlay
           ref={localVideoRef}
-          className="m-auto w-full h-full object-contain"
+          className="w-full h-full object-cover bg-red-500"
+        ></video>
+      </div>
+      <div className="w-full-full object-contain relative">
+        <video
+          autoPlay
+          ref={remoteVideoRef}
+          className="w-full h-full object-cover bg-green-200"
         ></video>
         <Button />
       </div>

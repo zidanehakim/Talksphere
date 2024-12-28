@@ -1,6 +1,8 @@
 "use client";
 import React, {
   useState,
+  useReducer,
+  useEffect,
   createContext,
   useContext,
   ReactNode,
@@ -15,18 +17,52 @@ export const configuration = {
   ],
 };
 
+// Define an enum for state
+export enum ConnectionState {
+  New = "new",
+  Connecting = "connecting",
+  Connected = "connected",
+  Disconnected = "disconnected",
+  Failed = "failed",
+  Closed = "closed",
+}
+
+interface Action {
+  type: ConnectionState;
+}
+
+function connectionReducer(
+  state: ConnectionState,
+  action: Action
+): ConnectionState {
+  switch (action.type) {
+    case ConnectionState.New:
+    case ConnectionState.Connecting:
+    case ConnectionState.Connected:
+    case ConnectionState.Disconnected:
+    case ConnectionState.Failed:
+    case ConnectionState.Closed:
+      return action.type;
+    default:
+      throw new Error(`Unhandled state: ${action.type}`);
+  }
+}
+
 interface ProtocolContextType {
   peerConnection: RefObject<RTCPeerConnection>;
-  socket: RefObject<WebSocket>;
-  setConnected: React.Dispatch<React.SetStateAction<boolean>>;
-  connected: boolean;
-  setupWebRTC: (isWebsocketOpen: boolean) => void;
+  socket: RefObject<WebSocket | null>;
+  state: ConnectionState;
+  dispatch: React.ActionDispatch<[action: Action]>;
+  setupWebRTC: () => void;
   setupCamRef: RefObject<() => void>;
+  isWSConnected: boolean;
 }
 
 const ProtocolContext = createContext<ProtocolContextType>(
   {} as ProtocolContextType
 );
+
+const url = "wss://f5f7-140-112-243-184.ngrok-free.app/ws";
 
 export const ProtocolContextProvider = ({
   children,
@@ -36,32 +72,49 @@ export const ProtocolContextProvider = ({
   const peerConnection = useRef<RTCPeerConnection>(
     new RTCPeerConnection(configuration)
   );
-  const socket = useRef<WebSocket>(
-    new WebSocket("wss://4378-140-112-243-184.ngrok-free.app/ws")
-  );
+  const socket = useRef<WebSocket | null>(null);
   const { chat, setChat, roomID } = useSessionContext();
-  const [connected, setConnected] = useState(false);
+  const [state, dispatch] = useReducer(
+    connectionReducer,
+    ConnectionState.Disconnected
+  );
+  const [isWSConnected, setIsWsConnected] = useState<boolean>(false);
   const setupCamRef = useRef<() => void>(() => {});
 
-  const setupWebRTC = (isWebsocketOpen: boolean) => {
-    if (!isWebsocketOpen) {
-      socket.current!.onopen = () => {
-        console.log("Connected to WebSocket server");
-        sendMatching();
-      };
-    } else {
-      sendMatching();
-    }
+  useEffect(() => {
+    socket.current = new WebSocket(url);
 
+    socket.current!.onopen = () => {
+      console.log("Connected to WebSocket server");
+      setIsWsConnected(true);
+    };
+
+    // Heartbeat to keep the connection alive, around 5-6 minutes
+    const interval = setInterval(() => {
+      socket.current!.send(JSON.stringify({ type: "ping" }));
+    }, 1000 * 60 * 5);
+
+    socket.current!.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+      setIsWsConnected(false);
+    };
+
+    return () => {
+      console.log("Cleanup");
+      clearInterval(interval);
+      socket.current!.close();
+    };
+  }, []);
+
+  const setupWebRTC = () => {
     socket.current!.onmessage = (message) => {
       const data = JSON.parse(message.data);
 
       switch (data.type) {
         case "room":
-          sendOffer(data.roomID);
-          break;
-        case "queue":
-          sendQueue();
+          setTimeout(() => {
+            sendOffer(data.roomID);
+          }, 1000);
           break;
         case "offer":
           handleOffer(data.offer, data.roomID);
@@ -73,10 +126,17 @@ export const ProtocolContextProvider = ({
           handleIceCandidate(data.candidate);
           break;
         case "close":
-          socket.current!.send(JSON.stringify({ type: "reset-roomid" }));
+          dispatch({ type: ConnectionState.Disconnected });
           handleClose();
+          socket.current!.send(JSON.stringify({ type: "reset-roomid" }));
+          socket.current!.send(
+            JSON.stringify({
+              type: "queue",
+              preference: "random",
+            })
+          );
           setupCamRef.current();
-          setupWebRTC(true);
+          setupWebRTC();
           break;
         case "chat":
           handleChat(data.message);
@@ -105,15 +165,6 @@ export const ProtocolContextProvider = ({
       socket.current!.send(
         JSON.stringify({
           type: "matching",
-          preference: "random",
-        })
-      );
-    }
-
-    async function sendQueue() {
-      socket.current!.send(
-        JSON.stringify({
-          type: "queue",
           preference: "random",
         })
       );
@@ -162,7 +213,6 @@ export const ProtocolContextProvider = ({
 
     function handleClose() {
       setChat(() => []);
-      setConnected(false);
       roomID.current = "";
 
       if (peerConnection.current) {
@@ -192,18 +242,27 @@ export const ProtocolContextProvider = ({
 
     // Listen for signaling state changes or connection state changes
     peerConnection.current.onconnectionstatechange = () => {
-      const state = peerConnection.current?.connectionState;
-      if (state === "connected") {
-        setConnected(true); // Mark as connected when the peer connection is fully established
-      } else if (
-        state === "disconnected" ||
-        state === "failed" ||
-        state === "closed"
+      const tempState = peerConnection.current
+        .connectionState as ConnectionState;
+      dispatch({
+        type: tempState,
+      });
+
+      if (
+        tempState === "disconnected" ||
+        tempState === "failed" ||
+        tempState === "closed"
       ) {
-        socket.current!.send(JSON.stringify({ type: "reset-roomid" }));
         handleClose(); // Mark as disconnected when the peer connection is lost
+        socket.current!.send(JSON.stringify({ type: "reset-roomid" }));
+        socket.current!.send(
+          JSON.stringify({
+            type: "queue",
+            preference: "random",
+          })
+        );
         setupCamRef.current(); // Reinitialize the camera
-        setupWebRTC(true); // Reinitialize the WebRTC connection
+        setupWebRTC(); // Reinitialize the WebRTC connection
       }
     };
 
@@ -211,6 +270,8 @@ export const ProtocolContextProvider = ({
       "ICE gathering state:",
       peerConnection.current.iceConnectionState
     );
+
+    sendMatching();
   };
 
   return (
@@ -219,9 +280,10 @@ export const ProtocolContextProvider = ({
         peerConnection,
         socket,
         setupWebRTC,
-        connected,
-        setConnected,
         setupCamRef,
+        state,
+        dispatch,
+        isWSConnected,
       }}
     >
       {children}

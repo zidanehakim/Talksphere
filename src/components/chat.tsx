@@ -1,13 +1,28 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
-import { useProtocolContext } from "../../context/ProtocolContext";
+import {
+  useProtocolContext,
+  ConnectionState,
+} from "../../context/ProtocolContext";
 import { useSessionContext, ChatType } from "../../context/SessionContext";
 
 export default function Chat() {
-  const { socket, connected } = useProtocolContext();
+  const { socket, state } = useProtocolContext();
   const { chat, setChat, roomID } = useSessionContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (state !== ConnectionState.Connected) {
+      inputRef.current!.value = "";
+    } else {
+      inputRef.current!.placeholder = "Type a message...";
+    }
+
+    if (state === ConnectionState.Connecting) {
+      inputRef.current!.placeholder = "Connecting...";
+    }
+  }, [state]);
 
   function sendMessage(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,11 +81,13 @@ export default function Chat() {
               type="text"
               className="w-full h-full border border-black"
               maxLength={25}
+              disabled={state !== ConnectionState.Connected}
+              autoFocus
             />
             <button
               type="submit"
               className="w-[4em] h-full bg-blue-900 text-white"
-              disabled={!connected}
+              disabled={state !== ConnectionState.Connected}
             >
               Send
             </button>
