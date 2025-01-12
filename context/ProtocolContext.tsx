@@ -11,6 +11,8 @@ import React, {
 } from "react";
 import { useSessionContext } from "./SessionContext";
 
+import { toast } from "sonner";
+
 export const configuration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" }, // STUN server
@@ -54,15 +56,16 @@ interface ProtocolContextType {
   state: ConnectionState;
   dispatch: React.ActionDispatch<[action: Action]>;
   setupWebRTC: () => void;
-  setupCamRef: RefObject<() => void>;
+  setupCamRef: RefObject<(bypass: boolean) => void>;
   isWSConnected: boolean;
+  localStream: RefObject<MediaStream | null>;
 }
 
 const ProtocolContext = createContext<ProtocolContextType>(
   {} as ProtocolContextType
 );
 
-const url = "wss://f5f7-140-112-243-184.ngrok-free.app/ws";
+const url = "wss://88b3-140-112-243-184.ngrok-free.app/ws";
 
 export const ProtocolContextProvider = ({
   children,
@@ -73,13 +76,15 @@ export const ProtocolContextProvider = ({
     new RTCPeerConnection(configuration)
   );
   const socket = useRef<WebSocket | null>(null);
-  const { chat, setChat, roomID } = useSessionContext();
+  const { chat, setChat, peerID, peers, setPeers, minScore, matchBest } =
+    useSessionContext();
   const [state, dispatch] = useReducer(
     connectionReducer,
     ConnectionState.Disconnected
   );
   const [isWSConnected, setIsWsConnected] = useState<boolean>(false);
-  const setupCamRef = useRef<() => void>(() => {});
+  const setupCamRef = useRef<(bypass: boolean) => void>(() => {});
+  const localStream = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     socket.current = new WebSocket(url);
@@ -92,7 +97,7 @@ export const ProtocolContextProvider = ({
     // Heartbeat to keep the connection alive, around 5-6 minutes
     const interval = setInterval(() => {
       socket.current!.send(JSON.stringify({ type: "ping" }));
-    }, 1000 * 60 * 5);
+    }, 1000 * 60 * 4.5);
 
     socket.current!.onclose = () => {
       console.log("Disconnected from WebSocket server");
@@ -112,12 +117,47 @@ export const ProtocolContextProvider = ({
 
       switch (data.type) {
         case "room":
+          if (matchBest.current) {
+            clearInterval(matchBest.current);
+          }
+          setPeers((prevPeers) => [
+            {
+              username: prevPeers[0].username,
+              preference: prevPeers[0].preference,
+            },
+            {
+              username:
+                data.peerUsername + ` (${Number(data.score).toFixed(2)}%)`,
+              preference: data.peerPreference,
+            },
+          ]);
           setTimeout(() => {
-            sendOffer(data.roomID);
+            sendOffer(
+              peers[0].username,
+              peers[0].preference,
+              data.connID,
+              data.peerID,
+              data.score
+            );
           }, 1000);
           break;
         case "offer":
-          handleOffer(data.offer, data.roomID);
+          if (matchBest.current) {
+            clearInterval(matchBest.current);
+          }
+          setPeers((prevPeers) => [
+            {
+              username: prevPeers[0].username,
+              preference: prevPeers[0].preference,
+            },
+            {
+              username:
+                data.peerUsername + ` (${Number(data.score).toFixed(2)}%)`,
+              preference: data.peerPreference,
+            },
+          ]);
+          console.log(data.peerUsername, data.peerPreference);
+          handleOffer(data.offer, data.connID);
           break;
         case "answer":
           handleAnswer(data.answer);
@@ -128,15 +168,6 @@ export const ProtocolContextProvider = ({
         case "close":
           dispatch({ type: ConnectionState.Disconnected });
           handleClose();
-          socket.current!.send(JSON.stringify({ type: "reset-roomid" }));
-          socket.current!.send(
-            JSON.stringify({
-              type: "queue",
-              preference: "random",
-            })
-          );
-          setupCamRef.current();
-          setupWebRTC();
           break;
         case "chat":
           handleChat(data.message);
@@ -146,8 +177,14 @@ export const ProtocolContextProvider = ({
       }
     };
 
-    async function sendOffer(roomId: string) {
-      roomID.current = roomId;
+    async function sendOffer(
+      username: string,
+      preference: string,
+      cID: string,
+      pID: string,
+      score: number
+    ) {
+      peerID.current = pID;
 
       const offer = await peerConnection.current.createOffer();
       await peerConnection.current.setLocalDescription(offer);
@@ -155,26 +192,35 @@ export const ProtocolContextProvider = ({
         JSON.stringify({
           type: "offer",
           offer: peerConnection.current.localDescription,
-          roomID: roomID.current,
+          connID: cID,
+          peerID: pID,
+          peerUsername: username,
+          peerPreference: preference,
+          score: score,
         })
       );
       console.log("Offer sent");
     }
 
-    async function sendMatching() {
+    async function sendMatching(
+      preference: string,
+      peerID: string,
+      minScore: number,
+      minScoreTemp: number
+    ) {
       socket.current!.send(
         JSON.stringify({
           type: "matching",
-          preference: "random",
+          preference: preference,
+          peerID: peerID,
+          minScore: minScore,
+          minScoreTemp: minScoreTemp,
         })
       );
     }
 
-    async function handleOffer(
-      offer: RTCSessionDescriptionInit,
-      roomId: string
-    ) {
-      roomID.current = roomId;
+    async function handleOffer(offer: RTCSessionDescriptionInit, pID: string) {
+      peerID.current = pID;
 
       await peerConnection.current.setRemoteDescription(
         new RTCSessionDescription(offer)
@@ -185,7 +231,7 @@ export const ProtocolContextProvider = ({
         JSON.stringify({
           type: "answer",
           answer: peerConnection.current.localDescription,
-          roomID: roomID.current,
+          peerID: pID,
         })
       );
       console.log("Offer received, answering");
@@ -213,12 +259,22 @@ export const ProtocolContextProvider = ({
 
     function handleClose() {
       setChat(() => []);
-      roomID.current = "";
 
       if (peerConnection.current) {
         peerConnection.current.close();
       }
       peerConnection.current = new RTCPeerConnection(configuration);
+
+      socket.current!.send(
+        JSON.stringify({
+          type: "queue",
+          username: peers[0].username,
+          preference: peers[0].preference,
+          minScore: minScore.current,
+        })
+      );
+      setupCamRef.current(false);
+      setupWebRTC();
     }
 
     peerConnection.current.onicecandidate = (event) => {
@@ -232,7 +288,7 @@ export const ProtocolContextProvider = ({
           JSON.stringify({
             type: "ice-candidate",
             candidate: event.candidate,
-            roomID: roomID.current,
+            peerID: peerID.current,
           })
         );
       } else {
@@ -253,16 +309,7 @@ export const ProtocolContextProvider = ({
         tempState === "failed" ||
         tempState === "closed"
       ) {
-        handleClose(); // Mark as disconnected when the peer connection is lost
-        socket.current!.send(JSON.stringify({ type: "reset-roomid" }));
-        socket.current!.send(
-          JSON.stringify({
-            type: "queue",
-            preference: "random",
-          })
-        );
-        setupCamRef.current(); // Reinitialize the camera
-        setupWebRTC(); // Reinitialize the WebRTC connection
+        handleClose();
       }
     };
 
@@ -271,7 +318,32 @@ export const ProtocolContextProvider = ({
       peerConnection.current.iceConnectionState
     );
 
-    sendMatching();
+    const delay = 1500;
+    const reduce = 0.1;
+    let minScoreTemp = minScore.current;
+    sendMatching(
+      peers[0].preference,
+      peerID.current,
+      minScore.current,
+      minScore.current
+    );
+    matchBest.current = setInterval(() => {
+      if (minScoreTemp - reduce < 0 && minScoreTemp > 0) {
+        minScoreTemp = 0;
+        toast.info("Reducing min score by 10%: now at 0%");
+      } else if (minScoreTemp > 0) {
+        minScoreTemp = parseFloat((minScoreTemp - reduce).toFixed(2));
+        toast.info(
+          "Reducing min score by 10%: now at " + minScoreTemp * 100 + "%"
+        );
+      }
+      sendMatching(
+        peers[0].preference,
+        peerID.current,
+        minScore.current,
+        minScoreTemp
+      );
+    }, delay);
   };
 
   return (
@@ -284,6 +356,7 @@ export const ProtocolContextProvider = ({
         state,
         dispatch,
         isWSConnected,
+        localStream,
       }}
     >
       {children}

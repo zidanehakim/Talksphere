@@ -5,6 +5,8 @@ import "./globals.css";
 import { ProtocolContextProvider } from "../../context/ProtocolContext";
 import { SessionContextProvider } from "../../context/SessionContext";
 
+import { Toaster } from "@/components/ui/sonner";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,8 +30,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased font-bold h-screen w-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-bold h-screen w-screen overflow-x-hidden`}
       >
+        <Toaster
+          theme="dark"
+          position="top-center"
+          duration={1600}
+          expand={false}
+        />
         <SessionContextProvider>
           <ProtocolContextProvider>{children}</ProtocolContextProvider>
         </SessionContextProvider>
