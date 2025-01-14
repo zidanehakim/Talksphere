@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   useProtocolContext,
   ConnectionState,
@@ -10,10 +10,15 @@ import ButtonUser from "./button-user";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { motion } from "framer-motion";
-
 import Buttons from "./buttons";
+import Drawers from "./drawers";
 import Chat from "./chat";
+
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+
+const MemoizedProfile = React.memo(Profile);
+const MemoizedButtons = React.memo(Buttons);
+const MemoizedDrawers = React.memo(Drawers);
 
 export default function Cam() {
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -21,10 +26,11 @@ export default function Cam() {
 
   const { peerConnection, setupCamRef, state, localStream } =
     useProtocolContext();
-  const { isMatchClicked, isBackCamera, peers } = useSessionContext();
+  const { isMatchClicked, isBackCamera, peers, isChatBoxOpen } =
+    useSessionContext();
 
   const isLocalVideo = useRef<boolean>(false);
-
+  const audioContext = useRef<AudioContext>(null);
   setupCamRef.current = async function setupCam(bypass: boolean) {
     try {
       console.log("once");
@@ -35,37 +41,35 @@ export default function Cam() {
           noiseSuppression: true, // Reduce background noise
           echoCancellation: true, // Prevent audio feedback
           autoGainControl: true, // Maintain consistent volume
+          channelCount: 2, // Stereo sound for a richer audio experience
           sampleRate: 48000, // High-quality audio (48 kHz)
-          sampleSize: 16, // CD-quality audio sample size
-          channelCount: 1, // Mono (better for speech clarity)
         },
         video: {
           facingMode: isBackCamera.current ? "environment" : "user",
-          width: { ideal: 1280, max: 1920 }, // HD resolution (1280x720 or higher)
-          height: { ideal: 720, max: 1080 },
           frameRate: { ideal: 30, max: 60 }, // Smooth video at 30-60 FPS
         },
       });
 
-      // Create an AudioContext for processing the audio
-      const audioContext = new window.AudioContext();
+      if (!audioContext.current) {
+        audioContext.current = new window.AudioContext();
+        const mediaStreamSource = audioContext.current.createMediaStreamSource(
+          localStream.current
+        );
 
-      const mediaStreamSource = audioContext.createMediaStreamSource(
-        localStream.current
-      );
+        const biquadFilter = audioContext.current.createBiquadFilter();
+        biquadFilter.type = "highpass";
+        biquadFilter.frequency.setValueAtTime(
+          1000,
+          audioContext.current.currentTime
+        );
 
-      // Create and configure the biquad filter (high-pass filter)
-      const biquadFilter = audioContext.createBiquadFilter();
-      biquadFilter.type = "highpass";
-      biquadFilter.frequency.setValueAtTime(1000, audioContext.currentTime); // Remove low frequencies
+        const gainNode = audioContext.current.createGain();
+        gainNode.gain.setValueAtTime(0.5, audioContext.current.currentTime);
 
-      // Create the gain node (volume control)
-      const gainNode = audioContext.createGain();
-      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime); // 50% volume
-
-      // Connect the nodes in sequence
-      mediaStreamSource.connect(biquadFilter);
-      biquadFilter.connect(gainNode);
+        // Connect nodes once
+        mediaStreamSource.connect(biquadFilter);
+        biquadFilter.connect(gainNode);
+      }
 
       if (localVideoRef.current && (!isLocalVideo.current || bypass)) {
         // Set the media stream to the local video element
@@ -110,13 +114,14 @@ export default function Cam() {
         });
       }
 
-      // Ensure the remote stream is updated in the video element
-      peerConnection.current.ontrack = (event) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-          remoteVideoRef.current.style.transform = "scaleX(-1)";
-        }
-      };
+      if (!peerConnection.current.ontrack) {
+        peerConnection.current.ontrack = (event) => {
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = event.streams[0];
+            remoteVideoRef.current.style.transform = "scaleX(-1)";
+          }
+        };
+      }
     } catch (error) {
       console.error("WebRTC setup failed", error);
     }
@@ -128,73 +133,84 @@ export default function Cam() {
   }, []);
 
   return (
-    <div className="container mx-auto pt-20 h-screen">
-      <div className="relative h-[calc(100%-.4rem)] rounded-[2rem] bg-black/30 border border-white/10 backdrop-blur-xl flex md:flex-row flex-col overflow-hidden">
+    <div className=" w-full h-full m-auto sm:py-1 sm:px-4">
+      <div className="relative h-full w-full sm:rounded-[2rem] bg-black/30 border border-white/10 backdrop-blur-xl flex lg:flex-row flex-col overflow-hidden">
         {/* Left Video (Stranger) */}
-        <motion.div
-          className="relative md:w-1/2 md:h-full h-1/2"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+        <div
+          key="peer"
+          className="relative lg:w-1/2 lg:h-full h-1/2 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex"
         >
           <video
             autoPlay
             ref={remoteVideoRef}
-            className="w-full h-full object-cover"
+            className="absolute w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <Profile username={peers[1].username} peer />
-        </motion.div>
+
+          {state === ConnectionState.Connected && (
+            <MemoizedProfile
+              username={peers[1].username}
+              peer
+              score={peers[1].score}
+            />
+          )}
+          {state !== ConnectionState.Connected && (
+            <>
+              <DotLottieReact
+                src={isMatchClicked ? "/find.lottie" : "/bubble.lottie"}
+                loop
+                autoplay
+                className={`w-[${isMatchClicked ? "16em" : "18em"}] h-[${
+                  isMatchClicked ? "8em" : "14em"
+                }] sm:w-[${isMatchClicked ? "19em" : "30em"}] sm:h-[${
+                  isMatchClicked ? "17em" : "26em"
+                }] m-auto opacity-${
+                  isMatchClicked ? "90" : "60"
+                } transition-transform duration-500 ease-in-out`}
+              />
+              {isMatchClicked && (
+                <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2 flex-wrap">
+                  <Skeleton className="bg-gradient-to-r from-blue-600 to-cyan-400 px-10 py-4 rounded-full text-sm font-semibold flex items-center gap-2 transition-all duration-500 ease-in-out" />
+                  <Skeleton className="bg-gray-800/60 backdrop-blur-sm px-6 py-3 rounded-full text-xs flex items-center gap-1 transition-all duration-500 ease-in-out"></Skeleton>
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         {/* Animated Separator */}
-        <motion.div
-          className="w-full md:w-[2px] h-[2px] md:h-full relative overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-b from-purple-500 via-pink-500 to-purple-500"
-            animate={{
-              y: ["-100%", "100%"],
-              background: [
-                "linear-gradient(to bottom, #8B5CF6, #EC4899, #8B5CF6)",
-                "linear-gradient(to bottom, #EC4899, #8B5CF6, #EC4899)",
-              ],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        </motion.div>
+        <div className="move w-full lg:w-[2px] h-[2px] lg:h-full relative overflow-hidden">
+          <div className="move absolute inset-0 bg-gradient-to-b from-purple-500 via-pink-500 to-purple-500 animate-gradient-y" />
+        </div>
 
         {/* Right Video (You) */}
-        <motion.div
-          className="relative md:w-1/2 md:h-full h-1/2"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+        <div
+          key="user"
+          className="relative lg:w-1/2 lg:h-full h-1/2 bg-gradient-to-t from-black/60 via-black/20 to-transparent"
         >
           <video
             autoPlay
             muted
             ref={localVideoRef}
-            className="w-full h-full object-cover"
+            className="absolute w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <Profile username="You" peer={false} />
-        </motion.div>
 
-        {/* Chat Toggle Button */}
+          <MemoizedProfile username="You" peer={false} />
+        </div>
+
+        {/* Button User Toggle Button */}
         <ButtonUser />
 
-        {/* Floating Chat */}
-        <Chat />
+        {/* Chat */}
+        {isChatBoxOpen && <Chat />}
 
         {/* Bottom Controls */}
-        <Buttons remoteVideoRef={remoteVideoRef} />
+        <div className="hidden sm:block">
+          <MemoizedButtons remoteVideoRef={remoteVideoRef} />
+        </div>
+
+        <div className="relative sm:hidden">
+          <MemoizedDrawers remoteVideoRef={remoteVideoRef} />
+        </div>
       </div>
     </div>
   );

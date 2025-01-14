@@ -12,7 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { motion } from "framer-motion";
 import {
   Camera,
   Edit,
@@ -22,10 +21,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
+import { RefObject, useRef } from "react";
 
 type ButtonsProps = {
-  remoteVideoRef: React.MutableRefObject<HTMLVideoElement | null>;
+  remoteVideoRef: RefObject<HTMLVideoElement | null>;
 };
 
 export default function Buttons({ remoteVideoRef }: ButtonsProps) {
@@ -36,28 +35,27 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
     setupCamRef,
     state,
     dispatch,
-    isWSConnected,
+    localStream,
   } = useProtocolContext();
   const {
     setChat,
     isMatchClicked,
     setIsMatchClicked,
     isBackCamera,
+    setIsEditProfileOpen,
     peers,
     peerID,
-    setIsEditProfileOpen,
     minScore,
     matchBest,
   } = useSessionContext();
 
-  // Check if the user is on a mobile device
   const mobileDevices =
     /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
   const isMobile = useRef<boolean>(
     mobileDevices.test(navigator.userAgent.toLowerCase())
   );
 
-  function handleMatch(event: React.MouseEvent<HTMLButtonElement>) {
+  const handleMatch = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     const username = peers[0].username;
@@ -77,9 +75,9 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
     );
     setupCamRef.current(false);
     setupWebRTC();
-  }
+  };
 
-  function handleStop(event: React.MouseEvent<HTMLButtonElement>) {
+  const handleStop = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     console.log("Stopped");
@@ -94,9 +92,9 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
     handleClose();
     setIsMatchClicked(false);
     peerID.current = "";
-  }
+  };
 
-  function handleClose() {
+  const handleClose = () => {
     if (matchBest.current) {
       clearInterval(matchBest.current);
     }
@@ -114,22 +112,25 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
       peerConnection.current.close();
     }
     peerConnection.current = new RTCPeerConnection(configuration);
-  }
+  };
+
   return (
-    <motion.div
-      className="absolute bottom-0 inset-x-0 p-6 bg-transparent bg-gradient-to-t from-black/10 via-black/10 to-transparent"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.4 }}
-    >
-      <div className="flex items-center justify-center gap-4">
+    <div className="move sm:absolute bottom-0 inset-x-0 sm:p-6 bg-transparent bg-gradient-to-t from-black/5 via-black/5 to-transparent animate-fade-in-up">
+      <div className="flex flex-wrap items-center justify-center gap-4">
         {[
           isMobile.current && {
             icon: Camera,
             label: "Toggle Camera",
             onClick: () => {
+              if (localStream.current) {
+                localStream.current
+                  .getVideoTracks()
+                  .forEach((track) => track.stop());
+              }
               isBackCamera.current = !isBackCamera.current;
+              setupCamRef.current(true);
             },
+            disabled: isMatchClicked && state !== ConnectionState.Connected,
           },
           {
             icon: Edit,
@@ -137,91 +138,64 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
             onClick: () => {
               setIsEditProfileOpen(true);
             },
+            disabled: isMatchClicked || state === ConnectionState.Connected,
           },
-        ]
-          .filter(Boolean)
-          .map(
-            (control, index) =>
-              control && (
-                <TooltipProvider key={control.label}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 + index * 0.1 }}
+        ].map(
+          (control, index) =>
+            control && (
+              <TooltipProvider key={control.label}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="move relative group animate-fade-in-up"
+                      style={{ animationDelay: `${0.5 + index * 0.1}s` }}
+                    >
+                      <Button
+                        size="lg"
+                        variant="secondary"
+                        className="relative rounded-xl h-12 w-12 bg-gradient-to-r from-purple-600/5 to-pink-600/5 hover:bg-white/20 border-0 overflow-hidden"
+                        onClick={control.onClick}
+                        disabled={control.disabled}
                       >
-                        <Button
-                          size="lg"
-                          variant="secondary"
-                          className="relative rounded-xl h-12 w-12 bg-white/10 hover:bg-white/20 border-0 group overflow-hidden"
-                          onClick={control.onClick}
-                        >
-                          <control.icon className="w-5 h-5 relative z-10" />
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20"
-                            animate={{
-                              opacity: [0.5, 0.8, 0.5],
-                            }}
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity,
-                              ease: "linear",
-                            }}
-                          />
-                        </Button>
-                      </motion.div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{control.label}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )
-          )}
+                        <control.icon className="w-5 h-5 relative z-10" />
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{control.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )
+        )}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="relative group"
+              <div
+                className="move relative group animate-fade-in-up"
+                style={{ animationDelay: "0.1s" }}
               >
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="relative rounded-xl h-12 px-4 bg-white/10 hover:bg-white/20 border-0 overflow-hidden"
+                  className="relative rounded-xl h-12 px-4 bg-gradient-to-r from-purple-600/5 to-pink-600/5 hover:bg-white/20 border-0 overflow-hidden"
                 >
                   <Volume2 className="w-5 h-5 relative z-10 mr-2" />
                   <Slider
-                    value={[remoteVideoRef.current?.volume || 0]}
+                    defaultValue={[50]}
                     onValueChange={(value) => {
                       if (remoteVideoRef.current) {
-                        remoteVideoRef.current.volume = value[0];
+                        remoteVideoRef.current.volume = parseFloat(
+                          (value[0] / 100).toFixed(2)
+                        );
                       }
                     }}
                     max={100}
-                    step={1}
+                    step={10}
                     className="w-24"
                   />
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20"
-                    animate={{
-                      opacity: [0.5, 0.8, 0.5],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
                 </Button>
-              </motion.div>
+              </div>
             </TooltipTrigger>
             <TooltipContent>
               <p>Adjust Volume</p>
@@ -231,23 +205,20 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
+              <div
+                className="move relative group animate-fade-in-up"
+                style={{ animationDelay: "0.8s" }}
               >
                 <Button
                   size="lg"
                   variant="destructive"
                   className="relative rounded-xl h-12 w-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 border-0 group"
                   onClick={handleStop}
-                  disabled={isMatchClicked}
+                  disabled={!isMatchClicked}
                 >
                   <PhoneOff className="w-5 h-5" />
                 </Button>
-              </motion.div>
+              </div>
             </TooltipTrigger>
             <TooltipContent>
               <p>End Call</p>
@@ -257,20 +228,19 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 }}
+              <div
+                className="move relative group animate-fade-in-up"
+                style={{ animationDelay: "0.9s" }}
               >
                 <Button
                   size="lg"
                   className="rounded-xl h-12 px-6 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 border-0 group relative overflow-hidden"
                   onClick={handleMatch}
-                  disabled={isMatchClicked}
+                  disabled={
+                    isMatchClicked && state !== ConnectionState.Connected
+                  }
                 >
-                  {isMatchClicked ? (
+                  {isMatchClicked && state !== ConnectionState.Connected ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
@@ -280,19 +250,9 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
                       <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform relative z-10 text-white" />
                     </>
                   )}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20"
-                    animate={{
-                      x: ["-100%", "100%"],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
+                  <div className="move absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20 animate-slide-x" />
                 </Button>
-              </motion.div>
+              </div>
             </TooltipTrigger>
             <TooltipContent>
               <p>Find Next Match</p>
@@ -300,6 +260,6 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
           </Tooltip>
         </TooltipProvider>
       </div>
-    </motion.div>
+    </div>
   );
 }

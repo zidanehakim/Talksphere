@@ -119,19 +119,19 @@ export default function AddProfile() {
                 <ToggleGroupItem value="tolerant" className="py-6">
                   <div className="flex flex-col items-center justify-center">
                     <span>Tolerant</span>
-                    <span className="text-gray-400">🥳10%</span>
+                    <span className="text-gray-400">😊10%</span>
                   </div>
                 </ToggleGroupItem>
                 <ToggleGroupItem value="normal" className="py-6">
                   <div className="flex flex-col items-center justify-center">
                     <span>Normal</span>
-                    <span className="text-gray-400">🤩50%</span>
+                    <span className="text-gray-400">😐50%</span>
                   </div>
                 </ToggleGroupItem>
                 <ToggleGroupItem value="strict" className="py-6">
                   <div className="flex flex-col items-center justify-center">
                     <span>Strict</span>
-                    <span className="text-gray-400">😎90%</span>
+                    <span className="text-gray-400">😠90%</span>
                   </div>
                 </ToggleGroupItem>
               </ToggleGroup>

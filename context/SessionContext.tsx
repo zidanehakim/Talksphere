@@ -9,6 +9,7 @@ export interface ChatType {
 export interface PeerType {
   username: string;
   preference: string;
+  score?: string;
 }
 
 interface SessionContextType {
@@ -26,6 +27,8 @@ interface SessionContextType {
   setIsEditProfileOpen: React.Dispatch<React.SetStateAction<boolean>>;
   minScore: RefObject<number>;
   matchBest: RefObject<NodeJS.Timeout | null>;
+  online: number;
+  setOnline: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const SessionContext = createContext({} as SessionContextType);
@@ -35,20 +38,13 @@ export const SessionContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [chat, setChat] = useState<ChatType[]>([
-    { name: "User", message: "Hello!" },
-    { name: "User", message: "How are you?" },
-    { name: "User", message: "I'm good!" },
-    { name: "User", message: "How about you?" },
-    { name: "User", message: "I'm good too!" },
-    { name: "User", message: "Nice to meet you!" },
-    { name: "User", message: "Nice to meet you too!" },
-  ]);
+  const [chat, setChat] = useState<ChatType[]>([]);
   const [isMatchClicked, setIsMatchClicked] = useState(false);
   const peerID = useRef<string>("");
   const isBackCamera = useRef<boolean>(false);
   const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(true);
+  const [online, setOnline] = useState(0);
 
   const [peers, setPeers] = useState<PeerType[]>([
     { username: "", preference: "" },
@@ -74,6 +70,8 @@ export const SessionContextProvider = ({
         setIsEditProfileOpen,
         minScore,
         matchBest,
+        online,
+        setOnline,
       }}
     >
       {children}

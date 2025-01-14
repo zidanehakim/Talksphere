@@ -65,7 +65,7 @@ const ProtocolContext = createContext<ProtocolContextType>(
   {} as ProtocolContextType
 );
 
-const url = "wss://88b3-140-112-243-184.ngrok-free.app/ws";
+const url = "wss://fcec-140-112-243-184.ngrok-free.app/ws";
 
 export const ProtocolContextProvider = ({
   children,
@@ -76,8 +76,16 @@ export const ProtocolContextProvider = ({
     new RTCPeerConnection(configuration)
   );
   const socket = useRef<WebSocket | null>(null);
-  const { chat, setChat, peerID, peers, setPeers, minScore, matchBest } =
-    useSessionContext();
+  const {
+    chat,
+    setChat,
+    peerID,
+    peers,
+    setPeers,
+    minScore,
+    matchBest,
+    setOnline,
+  } = useSessionContext();
   const [state, dispatch] = useReducer(
     connectionReducer,
     ConnectionState.Disconnected
@@ -91,13 +99,9 @@ export const ProtocolContextProvider = ({
 
     socket.current!.onopen = () => {
       console.log("Connected to WebSocket server");
+      socket.current!.send(JSON.stringify({ type: "ping" }));
       setIsWsConnected(true);
     };
-
-    // Heartbeat to keep the connection alive, around 5-6 minutes
-    const interval = setInterval(() => {
-      socket.current!.send(JSON.stringify({ type: "ping" }));
-    }, 1000 * 60 * 4.5);
 
     socket.current!.onclose = () => {
       console.log("Disconnected from WebSocket server");
@@ -106,10 +110,31 @@ export const ProtocolContextProvider = ({
 
     return () => {
       console.log("Cleanup");
-      clearInterval(interval);
       socket.current!.close();
     };
   }, []);
+
+  useEffect(() => {
+    // Heartbeat to keep the connection alive, around 5-6 minutes
+    const interval = setInterval(() => {
+      if (isWSConnected) socket.current!.send(JSON.stringify({ type: "ping" }));
+    }, 1000 * 10);
+
+    socket.current!.onmessage = (message) => {
+      const data = JSON.parse(message.data);
+
+      switch (data.type) {
+        case "pong":
+          console.log("Pong received ", data.online);
+          setOnline(data.online);
+          break;
+        default:
+          break;
+      }
+    };
+
+    return () => clearInterval(interval);
+  }, [isWSConnected, setOnline]);
 
   const setupWebRTC = () => {
     socket.current!.onmessage = (message) => {
@@ -126,9 +151,9 @@ export const ProtocolContextProvider = ({
               preference: prevPeers[0].preference,
             },
             {
-              username:
-                data.peerUsername + ` (${Number(data.score).toFixed(2)}%)`,
+              username: data.peerUsername,
               preference: data.peerPreference,
+              score: Number(data.score).toFixed(2),
             },
           ]);
           setTimeout(() => {
@@ -151,9 +176,9 @@ export const ProtocolContextProvider = ({
               preference: prevPeers[0].preference,
             },
             {
-              username:
-                data.peerUsername + ` (${Number(data.score).toFixed(2)}%)`,
+              username: data.peerUsername,
               preference: data.peerPreference,
+              score: Number(data.score).toFixed(2),
             },
           ]);
           console.log(data.peerUsername, data.peerPreference);
@@ -171,6 +196,10 @@ export const ProtocolContextProvider = ({
           break;
         case "chat":
           handleChat(data.message);
+          break;
+        case "pong":
+          console.log("Pong received ", data.online);
+          setOnline(data.online);
           break;
         default:
           break;
