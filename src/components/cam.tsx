@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import {
   useProtocolContext,
   ConnectionState,
@@ -31,101 +31,129 @@ export default function Cam() {
 
   const isLocalVideo = useRef<boolean>(false);
   const audioContext = useRef<AudioContext>(null);
-  setupCamRef.current = async function setupCam(bypass: boolean) {
-    try {
-      console.log("once");
+  setupCamRef.current = useCallback(
+    async function setupCam(bypass: boolean) {
+      try {
+        console.log("once");
 
-      // Get the new local media stream (front or back camera)
-      localStream.current = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          noiseSuppression: true, // Reduce background noise
-          echoCancellation: true, // Prevent audio feedback
-          autoGainControl: true, // Maintain consistent volume
-          channelCount: 2, // Stereo sound for a richer audio experience
-          sampleRate: 48000, // High-quality audio (48 kHz)
-        },
-        video: {
-          facingMode: isBackCamera.current ? "environment" : "user",
-          frameRate: { ideal: 30, max: 60 }, // Smooth video at 30-60 FPS
-        },
-      });
+        // Get the new local media stream (front or back camera)
+        localStream.current = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            noiseSuppression: true, // Reduce background noise
+            echoCancellation: true, // Prevent audio feedback
+            autoGainControl: true, // Maintain consistent volume
+            channelCount: 2, // Stereo sound for a richer audio experience
+            sampleRate: 48000, // High-quality audio (48 kHz)
+          },
+          video: {
+            facingMode: isBackCamera.current ? "environment" : "user",
+            frameRate: { ideal: 30, max: 60 }, // Smooth video at 30-60 FPS
+          },
+        });
 
-      if (!audioContext.current) {
-        audioContext.current = new window.AudioContext();
-        const mediaStreamSource = audioContext.current.createMediaStreamSource(
-          localStream.current
-        );
+        if (!audioContext.current) {
+          audioContext.current = new window.AudioContext();
+          const mediaStreamSource =
+            audioContext.current.createMediaStreamSource(localStream.current);
 
-        const biquadFilter = audioContext.current.createBiquadFilter();
-        biquadFilter.type = "highpass";
-        biquadFilter.frequency.setValueAtTime(
-          1000,
-          audioContext.current.currentTime
-        );
+          const biquadFilter = audioContext.current.createBiquadFilter();
+          biquadFilter.type = "highpass";
+          biquadFilter.frequency.setValueAtTime(
+            1000,
+            audioContext.current.currentTime
+          );
 
-        const gainNode = audioContext.current.createGain();
-        gainNode.gain.setValueAtTime(0.5, audioContext.current.currentTime);
+          const gainNode = audioContext.current.createGain();
+          gainNode.gain.setValueAtTime(0.6, audioContext.current.currentTime);
 
-        // Connect nodes once
-        mediaStreamSource.connect(biquadFilter);
-        biquadFilter.connect(gainNode);
-      }
+          // Create a MediaStreamDestination
+          const destination =
+            audioContext.current.createMediaStreamDestination();
 
-      if (localVideoRef.current && (!isLocalVideo.current || bypass)) {
-        // Set the media stream to the local video element
-        localVideoRef.current.srcObject = localStream.current;
+          // Connect audio nodes to the destination
+          mediaStreamSource.connect(biquadFilter);
+          biquadFilter.connect(gainNode);
+          gainNode.connect(destination);
 
-        // Apply mirroring unless bypassed
-        if (!isBackCamera.current) {
-          localVideoRef.current.style.transform = "scaleX(-1)";
-        } else {
-          localVideoRef.current.style.transform = ""; // Reset transform if bypassing
+          // Replace the audio track in the local stream with the processed audio track
+          const processedAudioTrack = destination.stream.getAudioTracks()[0];
+          const newStream = new MediaStream([
+            processedAudioTrack,
+            ...localStream.current.getVideoTracks(),
+          ]);
+          localStream.current = newStream;
         }
 
-        // Mark the video as having the local stream
-        isLocalVideo.current = true;
-      }
+        if (localVideoRef.current && (!isLocalVideo.current || bypass)) {
+          // Set the media stream to the local video element
+          localVideoRef.current.srcObject = localStream.current;
 
-      if (!peerConnection) {
-        console.warn("No peerConnection found.");
-        return;
-      }
-
-      console.log("Updating peer connection with new tracks");
-
-      // Get the video track from the new stream
-      const newVideoTrack = localStream.current.getVideoTracks()[0];
-
-      // Find the corresponding sender for the video track in the peer connection
-      const senders = peerConnection.current.getSenders();
-      const videoSender = senders.find(
-        (sender) => sender.track && sender.track.kind === "video"
-      );
-
-      // Replace the video track with the new track if a sender is found
-      if (videoSender) {
-        console.log("Replacing video track with new one");
-        await videoSender.replaceTrack(newVideoTrack);
-      } else {
-        // If no sender found, add the track as a new sender
-        console.log("No video sender found, adding new track");
-        localStream.current.getTracks().forEach((track) => {
-          peerConnection.current.addTrack(track, localStream.current!);
-        });
-      }
-
-      if (!peerConnection.current.ontrack) {
-        peerConnection.current.ontrack = (event) => {
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = event.streams[0];
-            remoteVideoRef.current.style.transform = "scaleX(-1)";
+          // Apply mirroring unless bypassed
+          if (!isBackCamera.current) {
+            localVideoRef.current.style.transform = "scaleX(-1)";
+          } else {
+            localVideoRef.current.style.transform = ""; // Reset transform if bypassing
           }
-        };
+
+          // Mute local playback
+          localVideoRef.current.muted = true;
+
+          // Mark the video as having the local stream
+          isLocalVideo.current = true;
+        }
+
+        if (!peerConnection) {
+          console.warn("No peerConnection found.");
+          return;
+        }
+
+        console.log("Updating peer connection with new tracks");
+
+        // Get the video track from the new stream
+        const newVideoTrack = localStream.current.getVideoTracks()[0];
+        const newAudioTrack = localStream.current.getAudioTracks()[0];
+
+        // Find the corresponding senders for audio and video in the peer connection
+        const senders = peerConnection.current.getSenders();
+        const videoSender = senders.find(
+          (sender) => sender.track && sender.track.kind === "video"
+        );
+        const audioSender = senders.find(
+          (sender) => sender.track && sender.track.kind === "audio"
+        );
+
+        // Replace the video track
+        if (videoSender) {
+          console.log("Replacing video track with new one");
+          await videoSender.replaceTrack(newVideoTrack);
+        } else {
+          console.log("No video sender found, adding new video track");
+          peerConnection.current.addTrack(newVideoTrack, localStream.current);
+        }
+
+        // Replace the audio track
+        if (audioSender) {
+          console.log("Replacing audio track with processed one");
+          await audioSender.replaceTrack(newAudioTrack);
+        } else {
+          console.log("No audio sender found, adding new audio track");
+          peerConnection.current.addTrack(newAudioTrack, localStream.current);
+        }
+
+        if (!peerConnection.current.ontrack && !bypass) {
+          peerConnection.current.ontrack = (event) => {
+            if (remoteVideoRef.current) {
+              remoteVideoRef.current.srcObject = event.streams[0];
+              remoteVideoRef.current.style.transform = "scaleX(-1)";
+            }
+          };
+        }
+      } catch (error) {
+        console.error("WebRTC setup failed", error);
       }
-    } catch (error) {
-      console.error("WebRTC setup failed", error);
-    }
-  };
+    },
+    [isBackCamera, localStream, peerConnection]
+  );
 
   useEffect(() => {
     setupCamRef.current(false);

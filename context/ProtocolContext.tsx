@@ -65,7 +65,7 @@ const ProtocolContext = createContext<ProtocolContextType>(
   {} as ProtocolContextType
 );
 
-const url = "wss://fcec-140-112-243-184.ngrok-free.app/ws";
+const url = "wss://bae4-140-112-243-184.ngrok-free.app/ws";
 
 export const ProtocolContextProvider = ({
   children,
@@ -94,13 +94,199 @@ export const ProtocolContextProvider = ({
   const setupCamRef = useRef<(bypass: boolean) => void>(() => {});
   const localStream = useRef<MediaStream | null>(null);
 
+  async function sendOffer(
+    username: string,
+    preference: string,
+    cID: string,
+    pID: string,
+    score: number
+  ) {
+    peerID.current = pID;
+
+    const offer = await peerConnection.current.createOffer();
+    await peerConnection.current.setLocalDescription(offer);
+    socket.current!.send(
+      JSON.stringify({
+        type: "offer",
+        offer: peerConnection.current.localDescription,
+        connID: cID,
+        peerID: pID,
+        peerUsername: username,
+        peerPreference: preference,
+        score: score,
+      })
+    );
+    console.log("Offer sent");
+  }
+
+  async function sendMatching(
+    preference: string,
+    peerID: string,
+    minScore: number,
+    minScoreTemp: number
+  ) {
+    socket.current!.send(
+      JSON.stringify({
+        type: "matching",
+        preference: preference,
+        peerID: peerID,
+        minScore: minScore,
+        minScoreTemp: minScoreTemp,
+      })
+    );
+  }
+
+  async function handleOffer(offer: RTCSessionDescriptionInit, pID: string) {
+    peerID.current = pID;
+
+    await peerConnection.current.setRemoteDescription(
+      new RTCSessionDescription(offer)
+    );
+    const answer = await peerConnection.current.createAnswer();
+    await peerConnection.current.setLocalDescription(answer);
+    socket.current!.send(
+      JSON.stringify({
+        type: "answer",
+        answer: peerConnection.current.localDescription,
+        peerID: pID,
+      })
+    );
+    console.log("Offer received, answering");
+  }
+
+  async function handleAnswer(answer: RTCSessionDescriptionInit) {
+    await peerConnection.current.setRemoteDescription(
+      new RTCSessionDescription(answer)
+    );
+    console.log("Answer received, setting remote description");
+  }
+
+  async function handleIceCandidate(candidate: RTCIceCandidate) {
+    await peerConnection.current.addIceCandidate(
+      new RTCIceCandidate(candidate)
+    );
+    console.log("ICE candidate received, adding to peer connection");
+  }
+
+  function handleChat(message: string) {
+    console.log(chat);
+    setChat((prevChat) => [...prevChat, { name: "Peer", message }]);
+    console.log("Chat message received:", message);
+  }
+
+  function handleClose() {
+    setChat(() => []);
+
+    if (peerConnection.current) {
+      peerConnection.current.onicecandidate = null;
+      peerConnection.current.ontrack = null;
+      peerConnection.current.close();
+    }
+
+    peerConnection.current = new RTCPeerConnection(configuration);
+
+    socket.current!.send(
+      JSON.stringify({
+        type: "queue",
+        username: peers[0].username,
+        preference: peers[0].preference,
+        minScore: minScore.current,
+      })
+    );
+    setupCamRef.current(false);
+    setupWebRTC();
+  }
+
   useEffect(() => {
     socket.current = new WebSocket(url);
 
     socket.current!.onopen = () => {
       console.log("Connected to WebSocket server");
       socket.current!.send(JSON.stringify({ type: "ping" }));
+      const interval = setInterval(() => {
+        socket.current!.send(JSON.stringify({ type: "ping" }));
+      }, 1000 * 10);
       setIsWsConnected(true);
+
+      socket.current!.onmessage = (message) => {
+        const data = JSON.parse(message.data);
+
+        switch (data.type) {
+          default:
+            break;
+        }
+      };
+
+      socket.current!.onmessage = (message) => {
+        const data = JSON.parse(message.data);
+
+        switch (data.type) {
+          case "room":
+            if (matchBest.current) {
+              clearInterval(matchBest.current);
+            }
+            setPeers((prevPeers) => [
+              {
+                username: prevPeers[0].username,
+                preference: prevPeers[0].preference,
+              },
+              {
+                username: data.peerUsername,
+                preference: data.peerPreference,
+                score: Number(data.score).toFixed(2),
+              },
+            ]);
+            setTimeout(() => {
+              sendOffer(
+                peers[0].username,
+                peers[0].preference,
+                data.connID,
+                data.peerID,
+                data.score
+              );
+            }, 1000);
+            break;
+          case "offer":
+            if (matchBest.current) {
+              clearInterval(matchBest.current);
+            }
+            setPeers((prevPeers) => [
+              {
+                username: prevPeers[0].username,
+                preference: prevPeers[0].preference,
+              },
+              {
+                username: data.peerUsername,
+                preference: data.peerPreference,
+                score: Number(data.score).toFixed(2),
+              },
+            ]);
+            console.log(data.peerUsername, data.peerPreference);
+            handleOffer(data.offer, data.connID);
+            break;
+          case "answer":
+            handleAnswer(data.answer);
+            break;
+          case "ice-candidate":
+            handleIceCandidate(data.candidate);
+            break;
+          case "close":
+            dispatch({ type: ConnectionState.Disconnected });
+            handleClose();
+            break;
+          case "chat":
+            handleChat(data.message);
+            break;
+          case "pong":
+            console.log("Pong received ", data.online);
+            setOnline(data.online);
+            break;
+          default:
+            break;
+        }
+      };
+
+      return () => clearInterval(interval);
     };
 
     socket.current!.onclose = () => {
@@ -112,200 +298,10 @@ export const ProtocolContextProvider = ({
       console.log("Cleanup");
       socket.current!.close();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    // Heartbeat to keep the connection alive, around 5-6 minutes
-    const interval = setInterval(() => {
-      if (isWSConnected) socket.current!.send(JSON.stringify({ type: "ping" }));
-    }, 1000 * 10);
-
-    socket.current!.onmessage = (message) => {
-      const data = JSON.parse(message.data);
-
-      switch (data.type) {
-        case "pong":
-          console.log("Pong received ", data.online);
-          setOnline(data.online);
-          break;
-        default:
-          break;
-      }
-    };
-
-    return () => clearInterval(interval);
-  }, [isWSConnected, setOnline]);
-
   const setupWebRTC = () => {
-    socket.current!.onmessage = (message) => {
-      const data = JSON.parse(message.data);
-
-      switch (data.type) {
-        case "room":
-          if (matchBest.current) {
-            clearInterval(matchBest.current);
-          }
-          setPeers((prevPeers) => [
-            {
-              username: prevPeers[0].username,
-              preference: prevPeers[0].preference,
-            },
-            {
-              username: data.peerUsername,
-              preference: data.peerPreference,
-              score: Number(data.score).toFixed(2),
-            },
-          ]);
-          setTimeout(() => {
-            sendOffer(
-              peers[0].username,
-              peers[0].preference,
-              data.connID,
-              data.peerID,
-              data.score
-            );
-          }, 1000);
-          break;
-        case "offer":
-          if (matchBest.current) {
-            clearInterval(matchBest.current);
-          }
-          setPeers((prevPeers) => [
-            {
-              username: prevPeers[0].username,
-              preference: prevPeers[0].preference,
-            },
-            {
-              username: data.peerUsername,
-              preference: data.peerPreference,
-              score: Number(data.score).toFixed(2),
-            },
-          ]);
-          console.log(data.peerUsername, data.peerPreference);
-          handleOffer(data.offer, data.connID);
-          break;
-        case "answer":
-          handleAnswer(data.answer);
-          break;
-        case "ice-candidate":
-          handleIceCandidate(data.candidate);
-          break;
-        case "close":
-          dispatch({ type: ConnectionState.Disconnected });
-          handleClose();
-          break;
-        case "chat":
-          handleChat(data.message);
-          break;
-        case "pong":
-          console.log("Pong received ", data.online);
-          setOnline(data.online);
-          break;
-        default:
-          break;
-      }
-    };
-
-    async function sendOffer(
-      username: string,
-      preference: string,
-      cID: string,
-      pID: string,
-      score: number
-    ) {
-      peerID.current = pID;
-
-      const offer = await peerConnection.current.createOffer();
-      await peerConnection.current.setLocalDescription(offer);
-      socket.current!.send(
-        JSON.stringify({
-          type: "offer",
-          offer: peerConnection.current.localDescription,
-          connID: cID,
-          peerID: pID,
-          peerUsername: username,
-          peerPreference: preference,
-          score: score,
-        })
-      );
-      console.log("Offer sent");
-    }
-
-    async function sendMatching(
-      preference: string,
-      peerID: string,
-      minScore: number,
-      minScoreTemp: number
-    ) {
-      socket.current!.send(
-        JSON.stringify({
-          type: "matching",
-          preference: preference,
-          peerID: peerID,
-          minScore: minScore,
-          minScoreTemp: minScoreTemp,
-        })
-      );
-    }
-
-    async function handleOffer(offer: RTCSessionDescriptionInit, pID: string) {
-      peerID.current = pID;
-
-      await peerConnection.current.setRemoteDescription(
-        new RTCSessionDescription(offer)
-      );
-      const answer = await peerConnection.current.createAnswer();
-      await peerConnection.current.setLocalDescription(answer);
-      socket.current!.send(
-        JSON.stringify({
-          type: "answer",
-          answer: peerConnection.current.localDescription,
-          peerID: pID,
-        })
-      );
-      console.log("Offer received, answering");
-    }
-
-    async function handleAnswer(answer: RTCSessionDescriptionInit) {
-      await peerConnection.current.setRemoteDescription(
-        new RTCSessionDescription(answer)
-      );
-      console.log("Answer received, setting remote description");
-    }
-
-    async function handleIceCandidate(candidate: RTCIceCandidate) {
-      await peerConnection.current.addIceCandidate(
-        new RTCIceCandidate(candidate)
-      );
-      console.log("ICE candidate received, adding to peer connection");
-    }
-
-    function handleChat(message: string) {
-      console.log(chat);
-      setChat((prevChat) => [...prevChat, { name: "Peer", message }]);
-      console.log("Chat message received:", message);
-    }
-
-    function handleClose() {
-      setChat(() => []);
-
-      if (peerConnection.current) {
-        peerConnection.current.close();
-      }
-      peerConnection.current = new RTCPeerConnection(configuration);
-
-      socket.current!.send(
-        JSON.stringify({
-          type: "queue",
-          username: peers[0].username,
-          preference: peers[0].preference,
-          minScore: minScore.current,
-        })
-      );
-      setupCamRef.current(false);
-      setupWebRTC();
-    }
-
     peerConnection.current.onicecandidate = (event) => {
       if (event.candidate) {
         console.log("New ICE candidate:", event.candidate);

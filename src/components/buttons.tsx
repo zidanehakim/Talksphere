@@ -97,6 +97,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
   const handleClose = () => {
     if (matchBest.current) {
       clearInterval(matchBest.current);
+      matchBest.current = null;
     }
 
     if (state === ConnectionState.Connected) {
@@ -108,9 +109,12 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
       dispatch({ type: ConnectionState.Closed });
     }
 
-    if (peerConnection) {
+    if (peerConnection.current) {
+      peerConnection.current.onicecandidate = null;
+      peerConnection.current.ontrack = null;
       peerConnection.current.close();
     }
+
     peerConnection.current = new RTCPeerConnection(configuration);
   };
 
