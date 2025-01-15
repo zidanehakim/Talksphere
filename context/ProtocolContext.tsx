@@ -65,7 +65,7 @@ const ProtocolContext = createContext<ProtocolContextType>(
   {} as ProtocolContextType
 );
 
-const url = "wss://bae4-140-112-243-184.ngrok-free.app/ws";
+const url = "wss://2349-140-112-243-184.ngrok-free.app/ws";
 
 export const ProtocolContextProvider = ({
   children,
@@ -85,6 +85,7 @@ export const ProtocolContextProvider = ({
     minScore,
     matchBest,
     setOnline,
+    online,
   } = useSessionContext();
   const [state, dispatch] = useReducer(
     connectionReducer,
@@ -169,13 +170,14 @@ export const ProtocolContextProvider = ({
   }
 
   function handleChat(message: string) {
-    console.log(chat);
-    setChat((prevChat) => [...prevChat, { name: "Peer", message }]);
+    setChat((prevChat) => [...prevChat, { name: peers[1].username, message }]);
     console.log("Chat message received:", message);
   }
 
   function handleClose() {
-    setChat(() => []);
+    if (chat && chat.length > 0) {
+      setChat(() => []);
+    }
 
     if (peerConnection.current) {
       peerConnection.current.onicecandidate = null;
@@ -208,84 +210,6 @@ export const ProtocolContextProvider = ({
       }, 1000 * 10);
       setIsWsConnected(true);
 
-      socket.current!.onmessage = (message) => {
-        const data = JSON.parse(message.data);
-
-        switch (data.type) {
-          default:
-            break;
-        }
-      };
-
-      socket.current!.onmessage = (message) => {
-        const data = JSON.parse(message.data);
-
-        switch (data.type) {
-          case "room":
-            if (matchBest.current) {
-              clearInterval(matchBest.current);
-            }
-            setPeers((prevPeers) => [
-              {
-                username: prevPeers[0].username,
-                preference: prevPeers[0].preference,
-              },
-              {
-                username: data.peerUsername,
-                preference: data.peerPreference,
-                score: Number(data.score).toFixed(2),
-              },
-            ]);
-            setTimeout(() => {
-              sendOffer(
-                peers[0].username,
-                peers[0].preference,
-                data.connID,
-                data.peerID,
-                data.score
-              );
-            }, 1000);
-            break;
-          case "offer":
-            if (matchBest.current) {
-              clearInterval(matchBest.current);
-            }
-            setPeers((prevPeers) => [
-              {
-                username: prevPeers[0].username,
-                preference: prevPeers[0].preference,
-              },
-              {
-                username: data.peerUsername,
-                preference: data.peerPreference,
-                score: Number(data.score).toFixed(2),
-              },
-            ]);
-            console.log(data.peerUsername, data.peerPreference);
-            handleOffer(data.offer, data.connID);
-            break;
-          case "answer":
-            handleAnswer(data.answer);
-            break;
-          case "ice-candidate":
-            handleIceCandidate(data.candidate);
-            break;
-          case "close":
-            dispatch({ type: ConnectionState.Disconnected });
-            handleClose();
-            break;
-          case "chat":
-            handleChat(data.message);
-            break;
-          case "pong":
-            console.log("Pong received ", data.online);
-            setOnline(data.online);
-            break;
-          default:
-            break;
-        }
-      };
-
       return () => clearInterval(interval);
     };
 
@@ -294,12 +218,99 @@ export const ProtocolContextProvider = ({
       setIsWsConnected(false);
     };
 
+    setupWSOnMessage();
+
     return () => {
       console.log("Cleanup");
       socket.current!.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const setupWSOnMessage = () => {
+    socket.current!.onmessage = (message) => {
+      const data = JSON.parse(message.data);
+
+      switch (data.type) {
+        case "room":
+          if (matchBest.current) {
+            clearInterval(matchBest.current);
+            matchBest.current = null;
+          }
+          setPeers((prevPeers) => [
+            {
+              username: prevPeers[0].username,
+              preference: prevPeers[0].preference,
+            },
+            {
+              username: data.peerUsername,
+              preference: data.peerPreference,
+              score: Number(data.score).toFixed(2),
+            },
+          ]);
+          console.log(data.peerUsername, data.peerPreference);
+          setTimeout(() => {
+            sendOffer(
+              peers[0].username,
+              peers[0].preference,
+              data.connID,
+              data.peerID,
+              data.score
+            );
+          }, 1000);
+          break;
+        case "offer":
+          if (matchBest.current) {
+            clearInterval(matchBest.current);
+            matchBest.current = null;
+          }
+          setPeers((prevPeers) => [
+            {
+              username: prevPeers[0].username,
+              preference: prevPeers[0].preference,
+            },
+            {
+              username: data.peerUsername,
+              preference: data.peerPreference,
+              score: Number(data.score).toFixed(2),
+            },
+          ]);
+          console.log(data.peerUsername, data.peerPreference);
+          handleOffer(data.offer, data.connID);
+          break;
+        case "answer":
+          handleAnswer(data.answer);
+          break;
+        case "ice-candidate":
+          handleIceCandidate(data.candidate);
+          break;
+        case "close":
+          dispatch({ type: ConnectionState.Disconnected });
+          handleClose();
+          break;
+        case "chat":
+          handleChat(data.message);
+          break;
+        case "pong":
+          console.log("Pong received ", data.online);
+          if (online !== data.online) {
+            setOnline(data.online);
+          }
+          break;
+        default:
+          break;
+      }
+    };
+  };
+
+  useEffect(() => {
+    if (!isWSConnected) {
+      return;
+    }
+
+    setupWSOnMessage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [peers, setPeers]);
 
   const setupWebRTC = () => {
     peerConnection.current.onicecandidate = (event) => {

@@ -41,7 +41,3 @@ body {
 #preference::-webkit-scrollbar-thumb {
   background-color: #1a202c;
 }
-
-.move {
-  will-change: transform, opacity;
-}

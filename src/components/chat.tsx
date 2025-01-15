@@ -13,16 +13,17 @@ import { Button } from "./ui/button";
 
 export default function Chat() {
   const { socket } = useProtocolContext();
-  const { chat, setChat, peerID, setIsChatBoxOpen } = useSessionContext();
+  const { chat, setChat, peerID, setIsChatBoxOpen, isChatBoxOpen } =
+    useSessionContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (chatBoxRef.current) {
+    if (chatBoxRef.current && isChatBoxOpen) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
-  }, [chat]);
+  }, [chat, isChatBoxOpen]);
 
   function sendMessage(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,10 +46,12 @@ export default function Chat() {
     }
   }
 
-  const handleCloseChatBox = () => setIsChatBoxOpen(false);
-
   return (
-    <div className="move absolute top-16 left-4 h-64 w-64 sm:w-80 sm:h-80 bg-gray-950/80 backdrop-blur-2xl rounded-2xl border border-white/20 flex flex-col shadow-2xl animate-in fade-in slide-in-from-top-4 duration-200">
+    <div
+      className={`absolute top-16 left-4 h-64 w-64 sm:w-80 sm:h-80 bg-gray-950/90 backdrop-blur-lg rounded-2xl border border-white/20 shadow-2xl animate-in fade-in duration-200 ${
+        isChatBoxOpen ? "flex flex-col" : "hidden"
+      }`}
+    >
       <div className="flex justify-between items-center py-1 px-3 border-b border-white/10 bg-gradient-to-r from-purple-600/30 to-pink-500/30 rounded-t-2xl">
         <h3 className="font-semibold flex items-center gap-2">
           <MessageCircleMore className="w-4 h-4 text-pink-400" />
@@ -58,7 +61,7 @@ export default function Chat() {
           variant="link"
           size="icon"
           className="rounded-full"
-          onClick={handleCloseChatBox}
+          onClick={() => setIsChatBoxOpen(false)}
         >
           <X className="w-4 h-4" />
         </Button>
@@ -76,11 +79,15 @@ export default function Chat() {
             } gap-3`}
           >
             <div className="w-fit h-fit">
-              <p className="text-sm text-gray-100 mb-1 text-center">
+              <p
+                className={`text-sm text-gray-100 mb-1 ${
+                  message.name !== "User" ? "text-left" : "text-right"
+                }`}
+              >
                 {message.name !== "User" ? message.name : "You"}
               </p>
               <div
-                className={`move bg-gradient-to-r ${
+                className={`bg-gradient-to-r ${
                   message.name !== "User"
                     ? "from-blue-600/30 to-cyan-400/30"
                     : "from-pink-600/30 to-purple-400/30"
@@ -103,7 +110,7 @@ export default function Chat() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="move relative group">
+                <div className="relative group">
                   <Button
                     type="submit"
                     size="icon"

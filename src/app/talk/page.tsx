@@ -20,7 +20,7 @@ export default function Home() {
             src="/cat.lottie"
             loop
             autoplay
-            className="w-[9em] h-[8em] sm:w-[14em] sm:h-[13em] m-auto"
+            className="w-[8em] h-[7em] sm:w-[13em] sm:h-[12em] m-auto"
           />
         </div>
       ) : (

@@ -29,6 +29,7 @@ interface SessionContextType {
   matchBest: RefObject<NodeJS.Timeout | null>;
   online: number;
   setOnline: React.Dispatch<React.SetStateAction<number>>;
+  isMobile: RefObject<boolean>;
 }
 
 export const SessionContext = createContext({} as SessionContextType);
@@ -53,6 +54,12 @@ export const SessionContextProvider = ({
   const minScore = useRef<number>(0.5);
   const matchBest = useRef<NodeJS.Timeout>(null);
 
+  const mobileDevices =
+    /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+  const isMobile = useRef<boolean>(
+    mobileDevices.test(navigator.userAgent.toLowerCase())
+  );
+
   return (
     <SessionContext.Provider
       value={{
@@ -72,6 +79,7 @@ export const SessionContextProvider = ({
         matchBest,
         online,
         setOnline,
+        isMobile,
       }}
     >
       {children}

@@ -4,42 +4,26 @@ import {
   ConnectionState,
   useProtocolContext,
 } from "../../context/ProtocolContext";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { MessageCircle, Minimize2, Maximize2 } from "lucide-react";
 import { Button } from "./ui/button";
 
-interface TooltipButtonProps {
+interface ButtonProps {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   icon: React.ReactNode;
-  tooltipText: string;
 }
 
-function TooltipButton({ onClick, icon, tooltipText }: TooltipButtonProps) {
+function IconButton({ onClick, icon }: ButtonProps) {
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="move hover:scale-105 active:scale-95 transition-transform">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 rounded-full shadow-lg relative group"
-              onClick={onClick}
-            >
-              {icon}
-            </Button>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{tooltipText}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div className="hover:scale-105 active:scale-95 transition-transform">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 rounded-full shadow-lg relative group"
+        onClick={onClick}
+      >
+        {icon}
+      </Button>
+    </div>
   );
 }
 
@@ -51,10 +35,14 @@ export default function ButtonUser() {
     useState<boolean>(false);
 
   useEffect(() => {
-    if (chat.length > 0 && chat[chat.length - 1].name !== "User") {
+    if (
+      chat.length > 0 &&
+      chat[chat.length - 1].name !== "User" &&
+      !isChatBoxOpen
+    ) {
       setIsExclamationMarkVisible(true);
     }
-  }, [chat]);
+  }, [chat, isChatBoxOpen]);
 
   function toggleFullScreen(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
@@ -73,8 +61,8 @@ export default function ButtonUser() {
   }
 
   return (
-    <div className="move absolute top-4 left-4 flex gap-2 animate-fadeIn animate-delay-600">
-      <TooltipButton
+    <div className="absolute top-4 left-4 flex gap-2 animate-fadeIn animate-delay-600">
+      <IconButton
         onClick={toggleFullScreen}
         icon={
           isFullscreen ? (
@@ -83,10 +71,9 @@ export default function ButtonUser() {
             <Maximize2 className="w-5 h-5" />
           )
         }
-        tooltipText={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
       />
       {state === ConnectionState.Connected && (
-        <TooltipButton
+        <IconButton
           onClick={() => {
             setIsExclamationMarkVisible(false);
             setIsChatBoxOpen(!isChatBoxOpen);
@@ -101,7 +88,6 @@ export default function ButtonUser() {
               )}
             </>
           }
-          tooltipText="Toggle Chat"
         />
       )}
     </div>

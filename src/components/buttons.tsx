@@ -21,7 +21,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RefObject, useRef } from "react";
+import { RefObject } from "react";
 
 type ButtonsProps = {
   remoteVideoRef: RefObject<HTMLVideoElement | null>;
@@ -47,13 +47,9 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
     peerID,
     minScore,
     matchBest,
+    isMobile,
+    chat,
   } = useSessionContext();
-
-  const mobileDevices =
-    /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
-  const isMobile = useRef<boolean>(
-    mobileDevices.test(navigator.userAgent.toLowerCase())
-  );
 
   const handleMatch = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -105,7 +101,9 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
       socket.current!.send(
         JSON.stringify({ type: "close", peerID: peerID.current })
       );
-      setChat(() => []);
+      if (chat && chat.length > 0) {
+        setChat(() => []);
+      }
       dispatch({ type: ConnectionState.Closed });
     }
 
@@ -119,7 +117,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
   };
 
   return (
-    <div className="move sm:absolute bottom-0 inset-x-0 sm:p-6 bg-transparent bg-gradient-to-t from-black/5 via-black/5 to-transparent animate-fade-in-up">
+    <div className="sm:absolute bottom-0 inset-x-0 sm:p-6 bg-transparent bg-gradient-to-t from-black/5 via-black/5 to-transparent animate-fade-in-up">
       <div className="flex flex-wrap items-center justify-center gap-4">
         {[
           isMobile.current && {
@@ -151,7 +149,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div
-                      className="move relative group animate-fade-in-up"
+                      className="relative group animate-fade-in-up"
                       style={{ animationDelay: `${0.5 + index * 0.1}s` }}
                     >
                       <Button
@@ -176,7 +174,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <div
-                className="move relative group animate-fade-in-up"
+                className="relative group animate-fade-in-up"
                 style={{ animationDelay: "0.1s" }}
               >
                 <Button
@@ -210,7 +208,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <div
-                className="move relative group animate-fade-in-up"
+                className="relative group animate-fade-in-up"
                 style={{ animationDelay: "0.8s" }}
               >
                 <Button
@@ -233,7 +231,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <div
-                className="move relative group animate-fade-in-up"
+                className="relative group animate-fade-in-up"
                 style={{ animationDelay: "0.9s" }}
               >
                 <Button
@@ -254,7 +252,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
                       <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform relative z-10 text-white" />
                     </>
                   )}
-                  <div className="move absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20 animate-slide-x" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20 animate-slide-x" />
                 </Button>
               </div>
             </TooltipTrigger>
