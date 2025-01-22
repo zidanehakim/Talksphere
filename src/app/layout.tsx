@@ -1,20 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-import { ProtocolContextProvider } from "../../context/ProtocolContext";
-import { SessionContextProvider } from "../../context/SessionContext";
-
-import { Toaster } from "@/components/ui/sonner";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -30,17 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased font-bold h-screen w-screen overflow-x-hidden`}
+        className={`${plusJakartaSans} antialiased font-bold h-screen w-screen overflow-x-hidden`}
       >
-        <Toaster
-          theme="dark"
-          position="top-center"
-          duration={1600}
-          expand={false}
-        />
-        <SessionContextProvider>
-          <ProtocolContextProvider>{children}</ProtocolContextProvider>
-        </SessionContextProvider>
+        {children}
       </body>
     </html>
   );

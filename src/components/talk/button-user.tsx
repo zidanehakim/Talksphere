@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useSessionContext } from "../../context/SessionContext";
+import { useSessionContext } from "../../../context/SessionContext";
 import {
   ConnectionState,
   useProtocolContext,
-} from "../../context/ProtocolContext";
+} from "../../../context/ProtocolContext";
 import { MessageCircle, Minimize2, Maximize2 } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 interface ButtonProps {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
@@ -42,7 +42,15 @@ export default function ButtonUser() {
     ) {
       setIsExclamationMarkVisible(true);
     }
-  }, [chat, isChatBoxOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat]);
+
+  useEffect(() => {
+    if (isExclamationMarkVisible && !isChatBoxOpen) {
+      setIsExclamationMarkVisible(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isChatBoxOpen]);
 
   function toggleFullScreen(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();

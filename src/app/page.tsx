@@ -1,654 +1,448 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
-  MessageCircle,
-  Video,
+  Camera,
+  Users,
   Shield,
   Globe,
-  Users,
-  Languages,
-  Zap,
-  Send,
-  Sparkles,
-  Headphones,
-  Smile,
-  Heart,
   Star,
-  Award,
-  Gift,
-  ArrowRight,
+  StarHalf,
+  Zap,
+  MessageCircle,
+  Heart,
+  QuoteIcon,
+  Facebook,
+  Instagram,
+  Github,
 } from "lucide-react";
-import { SmoothSection } from "../components/SmoothSection";
-
 import Image from "next/image";
+import Link from "next/link";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import NavbarLanding from "@/components/landing/navbar-landing";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 500);
-    return () => clearTimeout(timer);
-  }, []);
+  const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#1A0B2E] text-white overflow-hidden">
+    <div className="min-h-screen bg-[#000000] text-white">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 bg-black/30 backdrop-blur-xl fixed w-full z-50 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <motion.div
-            initial={{ rotate: -10 }}
-            animate={{ rotate: 10 }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-            className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-500 rounded-2xl grid place-items-center shadow-lg shadow-purple-500/20"
-          >
-            <span className="text-white font-bold text-xl">TS</span>
-          </motion.div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-            TalkSphere
-          </h1>
-        </div>
-        <Button
-          variant="secondary"
-          className="rounded-full px-6 bg-white/10 hover:bg-purple-500 hover:text-white transition-all duration-300 backdrop-blur-xl border border-white/20"
-        >
-          Login
-        </Button>
-      </header>
+      <NavbarLanding />
 
       {/* Hero Section */}
-      <SmoothSection>
-        <section className="relative pt-32 pb-20 px-4 min-h-screen flex items-center">
-          <div className="container mx-auto relative z-10">
-            <div className="flex flex-col lg:flex-row items-center gap-12">
-              {/* Left Content */}
-              <div className="lg:w-1/2 relative">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="relative z-10"
-                >
-                  <h2 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-                    <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-                      Connect & Chat
-                    </span>
-                    <br />
-                    <span className="relative">
-                      with the World
-                      <motion.div
-                        className="absolute -right-12 -top-6"
-                        animate={{ rotate: [0, 20, 0] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        <Sparkles className="w-10 h-10 text-yellow-400" />
-                      </motion.div>
-                    </span>
-                  </h2>
-                  <p className="text-xl text-gray-300 mb-8 max-w-xl">
-                    Experience real connections through our playful and secure
-                    platform. Meet new friends, learn languages, and explore
-                    different cultures!
-                  </p>
-                  <div className="flex gap-4 items-center">
-                    <Button
-                      size="lg"
-                      className="rounded-full px-8 py-6 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-xl shadow-purple-500/20 group"
-                    >
-                      <Send className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
-                      Start Chatting
-                    </Button>
-                    <motion.div
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        className="rounded-full px-8 py-6 border-purple-400/30 hover:bg-purple-400/10 text-purple-400"
-                      >
-                        Watch Demo
-                      </Button>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              </div>
-
-              {/* Right Content - 3D Illustration */}
-              <div className="lg:w-1/2">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  className="relative"
-                >
-                  <div className="relative z-10 bg-gradient-to-b from-purple-600/20 to-pink-500/20 p-8 rounded-[2.5rem] border border-white/20 backdrop-blur-xl">
-                    <Image
-                      width={400}
-                      height={500}
-                      src="/placeholder.svg?height=500&width=400"
-                      alt="Chat Interface"
-                      className="rounded-2xl shadow-2xl"
-                    />
-                    {/* Floating Elements */}
-                    <motion.div
-                      animate={{ y: [-10, 10, -10] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="absolute -left-8 top-1/4 bg-gradient-to-br from-purple-600 to-pink-500 rounded-2xl p-4 shadow-xl"
-                    >
-                      <MessageCircle className="w-6 h-6" />
-                    </motion.div>
-                    <motion.div
-                      animate={{ y: [10, -10, 10] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="absolute -right-8 top-1/2 bg-gradient-to-br from-blue-600 to-cyan-400 rounded-2xl p-4 shadow-xl"
-                    >
-                      <Video className="w-6 h-6" />
-                    </motion.div>
-                  </div>
-                  {/* Background Blur Effects */}
-                  <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/30 to-pink-500/30 blur-3xl rounded-full z-0"></div>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-
-          {/* Animated Background */}
-          <div className="absolute inset-0 z-0 overflow-hidden">
-            <motion.div
-              animate={{
-                scale: [1, 1.1, 1],
-                rotate: [0, 5, 0],
-              }}
-              transition={{ duration: 20, repeat: Infinity }}
-              className="absolute inset-0"
-            >
-              <svg
-                className="w-full h-full opacity-30"
-                viewBox="0 0 200 200"
-                xmlns="http://www.w3.org/2000/svg"
+      <section className="relative w-screen h-screen overflow-hidden flex m-auto">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900 via-black to-black opacity-40" />
+        </div>
+        <div className="container mx-auto px-4 relative z-10 grid grid-cols-1 lg:grid-cols-[auto,45em] gap-8 justify-center items-center max-w-7xl">
+          <div className="mx-auto text-center md:text-left px-2">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 leading-tight">
+              Meet New Friends Online
+            </h1>
+            <p className="text-base md:text-lg text-zinc-300 mb-8 max-w-3xl font-medium m-auto">
+              Connect globally through high-quality video calls. Make friends,
+              and explore cultures – all for free!
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-12 w-fit h-fit mx-auto sm:mx-0">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white px-8"
+                onClick={() => router.push("/talk")}
               >
-                <defs>
-                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop
-                      offset="0%"
-                      style={{ stopColor: "#7C3AED", stopOpacity: 1 }}
-                    />
-                    <stop
-                      offset="100%"
-                      style={{ stopColor: "#EC4899", stopOpacity: 1 }}
-                    />
-                  </linearGradient>
-                </defs>
-                <path
-                  fill="url(#grad1)"
-                  d="M43.5,-68.5C55.9,-62.1,65.2,-49.2,71.7,-35.1C78.2,-20.9,81.9,-5.5,79.8,9.2C77.7,24,69.8,38.1,59.1,48.8C48.4,59.5,34.9,66.8,20.4,71.3C5.9,75.8,-9.6,77.5,-23.6,73.6C-37.6,69.8,-50.1,60.4,-60.9,48.8C-71.7,37.2,-80.8,23.4,-83.5,8.3C-86.2,-6.9,-82.5,-23.3,-74.2,-36.6C-65.9,-49.8,-53,-59.8,-39.5,-65.5C-25.9,-71.2,-13,-72.6,1.5,-75C15.9,-77.4,31.1,-74.9,43.5,-68.5Z"
-                >
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    values="0 0; 20 20; 0 0"
-                    dur="10s"
-                    repeatCount="indefinite"
-                  />
-                </path>
-              </svg>
-            </motion.div>
-          </div>
-        </section>
-      </SmoothSection>
-
-      {/* Features Section */}
-      <SmoothSection>
-        <section className="py-20 px-4 relative overflow-hidden">
-          <div className="container mx-auto relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-16"
-            >
-              <h3 className="text-4xl font-bold mb-4">
-                Why Choose TalkSphere?
-              </h3>
-              <p className="text-gray-300 text-xl max-w-2xl mx-auto">
-                Experience a new way of connecting with people around the globe
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <FeatureCard
-                icon={<Globe className="w-12 h-12" />}
-                title="Global Community"
-                description="Connect with people from over 190+ countries"
-                color="from-purple-600 to-pink-500"
-              />
-              <FeatureCard
-                icon={<Shield className="w-12 h-12" />}
-                title="Safe & Secure"
-                description="Advanced encryption and privacy features"
-                color="from-blue-600 to-cyan-400"
-              />
-              <FeatureCard
-                icon={<Languages className="w-12 h-12" />}
-                title="Multi-Language"
-                description="Real-time translation in 50+ languages"
-                color="from-yellow-500 to-orange-500"
-              />
+                Start Meeting People
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto border-zinc-700 text-zinc-300 hover:text-white px-8"
+              >
+                <Link href="#how-it-works">Learn How it Works</Link>
+              </Button>
+            </div>
+            <div className="grid grid-cols-3 gap-8 mb-12 text-center">
+              <div>
+                <h4 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600">
+                  1M+
+                </h4>
+                <p className="text-zinc-400 font-medium">Daily Active Users</p>
+              </div>
+              <div>
+                <h4 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600">
+                  150+
+                </h4>
+                <p className="text-zinc-400 font-medium">Countries</p>
+              </div>
+              <div>
+                <h4 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600">
+                  4.9/5
+                </h4>
+                <p className="text-zinc-400 font-medium">User Rating</p>
+              </div>
             </div>
           </div>
-        </section>
-      </SmoothSection>
+          {window.innerWidth >= 768 && (
+            <div>
+              <DotLottieReact src="/videochat.lottie" loop autoplay />
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* How It Works */}
-      <SmoothSection>
-        <section className="py-20 px-4 relative overflow-hidden bg-gradient-to-b from-transparent to-purple-900/20">
-          <div className="container mx-auto relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-16"
-            >
-              <h3 className="text-4xl font-bold mb-4">How It Works</h3>
-              <p className="text-gray-300 text-xl max-w-2xl mx-auto">
-                Get started in three simple steps
-              </p>
-            </motion.div>
-
-            <div className="flex flex-col md:flex-row gap-8 justify-center">
-              {[
-                {
-                  number: 1,
-                  title: "Sign Up",
-                  icon: <Zap />,
-                  description: "Create your account instantly",
-                },
-                {
-                  number: 2,
-                  title: "Match",
-                  icon: <Users />,
-                  description: "Find your perfect chat partner",
-                },
-                {
-                  number: 3,
-                  title: "Chat",
-                  icon: <MessageCircle />,
-                  description: "Start meaningful conversations",
-                },
-              ].map((step, index) => (
-                <motion.div
-                  key={step.number}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: index * 0.2 }}
-                  className="relative flex-1"
-                >
-                  <div className="bg-white/5 rounded-3xl p-8 backdrop-blur-xl border border-white/10 hover:border-purple-500/50 transition-all duration-300 group">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500 flex items-center justify-center text-2xl font-bold">
-                        {step.number}
-                      </div>
-                      <div className="text-2xl font-bold">{step.title}</div>
-                    </div>
-                    <p className="text-gray-300">{step.description}</p>
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl -z-10"></div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+      <section
+        id="how-it-works"
+        className="py-20 border-t border-white/20 bg-black/50"
+      >
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge className="mb-4 bg-white/10 text-pink-400 hover:bg-white/20 cursor-default">
+              How It Works
+            </Badge>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              Start chatting in three simple steps
+            </h2>
+            <p className="text-zinc-400 font-medium">
+              Getting started with TalkSphere is quick and easy. No complicated
+              setup required.
+            </p>
           </div>
-        </section>
-      </SmoothSection>
-
-      {/* App Features */}
-      <SmoothSection>
-        <section className="py-20 px-4 relative overflow-hidden">
-          <div className="container mx-auto relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-16"
-            >
-              <h3 className="text-4xl font-bold mb-4">Discover TalkSphere</h3>
-              <p className="text-gray-300 text-xl max-w-2xl mx-auto">
-                Explore our amazing features designed for meaningful connections
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              <AppFeatureCard
-                title="Voice & Video Calls"
-                description="Crystal clear HD video calls with noise cancellation"
-                icon={<Video className="w-8 h-8" />}
-                color="from-purple-500 to-pink-500"
-                image="/placeholder.svg?height=300&width=300"
-              />
-              <AppFeatureCard
-                title="Smart Translation"
-                description="Real-time chat translation in over 50 languages"
-                icon={<Languages className="w-8 h-8" />}
-                color="from-blue-500 to-cyan-400"
-                image="/placeholder.svg?height=300&width=300"
-              />
-            </div>
-          </div>
-        </section>
-      </SmoothSection>
-
-      {/* User Experience */}
-      <SmoothSection>
-        <section className="py-20 px-4 relative overflow-hidden bg-gradient-to-b from-purple-900/20 to-transparent">
-          <div className="container mx-auto relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8 }}
-                >
-                  <h3 className="text-4xl font-bold mb-6">
-                    Experience the Magic
-                  </h3>
-                  <p className="text-gray-300 text-xl mb-8">
-                    Our platform is designed to make every conversation special.
-                    With intuitive features and playful interactions, connecting
-                    with others has never been more enjoyable.
-                  </p>
-                  <div className="space-y-4">
-                    {[
-                      {
-                        icon: <Star className="w-6 h-6 text-yellow-400" />,
-                        text: "Personalized matching algorithm",
-                      },
-                      {
-                        icon: <Heart className="w-6 h-6 text-pink-500" />,
-                        text: "Build lasting friendships",
-                      },
-                      {
-                        icon: <Shield className="w-6 h-6 text-green-400" />,
-                        text: "Safe and secure environment",
-                      },
-                    ].map((item, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, delay: index * 0.2 }}
-                        className="flex items-center gap-4 bg-white/5 rounded-2xl p-4 backdrop-blur-xl"
-                      >
-                        <div className="p-2 bg-white/10 rounded-xl">
-                          {item.icon}
-                        </div>
-                        <p className="text-lg text-gray-200">{item.text}</p>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl m-auto text-center">
+            {[
+              {
+                step: "01",
+                title: "Go to TalkSphere",
+                description: "Use your browser to visit the TalkSphere website",
+              },
+              {
+                step: "02",
+                title: "Set Profile",
+                description: "Choose your display name and chat preferences",
+              },
+              {
+                step: "03",
+                title: "Start Chatting",
+                description: "Click 'Start' and get matched instantly",
+              },
+            ].map((step, i) => (
+              <div key={i} className="relative m-auto">
+                <div className="text-5xl md:text-6xl font-bold text-white/30 mb-4">
+                  {step.step}
+                </div>
+                <h3 className="text-lg md:text-xl font-bold mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-zinc-400 font-normal">{step.description}</p>
               </div>
-              <div className="relative">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.8 }}
-                  className="relative z-10"
-                >
-                  <div className="relative bg-gradient-to-b from-purple-600/20 to-pink-500/20 p-8 rounded-[2.5rem] border border-white/20 backdrop-blur-xl">
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Fun Fact Section */}
+      <section id="fun-facts" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge className="mb-4 bg-white/10 text-pink-400 hover:bg-white/20 cursor-default">
+              Fun Facts
+            </Badge>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              TalkSphere by the Numbers
+            </h2>
+            <p className="text-zinc-400 font-medium">
+              Discover the impact we&apos;re making around the world
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center max-w-6xl m-auto">
+            {[
+              {
+                number: "1M+",
+                label: "Daily Active Users",
+                icon: <Users className="w-8 h-8" />,
+                color: "from-blue-500 to-cyan-600",
+              },
+              {
+                number: "150+",
+                label: "Countries Represented",
+                icon: <Globe className="w-8 h-8" />,
+                color: "from-yellow-500 to-orange-600",
+              },
+              {
+                number: "5B+",
+                label: "Minutes of Conversation",
+                icon: <MessageCircle className="w-8 h-8" />,
+                color: "from-green-500 to-lime-600",
+              },
+              {
+                number: "500K+",
+                label: "Friendships Formed",
+                icon: <Heart className="w-8 h-8" />,
+                color: "from-red-500 to-pink-600",
+              },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className="p-6 rounded-xl border border-white/10 bg-zinc-950"
+              >
+                <div className="flex justify-center mb-4">
+                  <div
+                    className={`w-16 h-16 rounded-full bg-gradient-to-r flex items-center justify-center ${stat.color}`}
+                  >
+                    {stat.icon}
+                  </div>
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold mb-2">
+                  {stat.number}
+                </h3>
+                <p className="text-zinc-400 font-normal text-sm">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section id="features" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge className="mb-4 bg-white/10 text-pink-400 hover:bg-white/20 cursor-default">
+              Features
+            </Badge>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              Everything you need for perfect video chats
+            </h2>
+            <p className="text-zinc-400 font-medium">
+              Discover all the features that make TalkSphere the best platform
+              for meeting new people online
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl m-auto">
+            {[
+              {
+                icon: <Camera className="w-6 h-6" />,
+                title: "Good Video Quality",
+                description:
+                  "Crystal clear video quality with advanced compression",
+              },
+              {
+                icon: <Shield className="w-6 h-6" />,
+                title: "Safe & Secure",
+                description:
+                  "Advanced encryption and user verification systems",
+              },
+              {
+                icon: <Zap className="w-6 h-6" />,
+                title: "Instant Matching",
+                description: "Connect with new people in less than 5 seconds",
+              },
+              {
+                icon: <Users className="w-6 h-6" />,
+                title: "Interest Matching",
+                description: "Find people who share your interests and hobbies",
+              },
+              {
+                icon: <Globe className="w-6 h-6" />,
+                title: "Global Reach",
+                description: "Connect with people from over 150 countries",
+              },
+              {
+                icon: <MessageCircle className="w-6 h-6" />,
+                title: "Text Chat",
+                description: "Built-in text chat with emoji and file sharing",
+              },
+            ].map((feature, i) => (
+              <div
+                key={i}
+                className="group p-6 rounded-xl border border-white/10 bg-black/50 hover:bg-gradient-to-r hover:from-pink-500/10 hover:to-purple-600/10 transition-all duration-300"
+              >
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  {feature.icon}
+                </div>
+                <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
+                <p className="text-zinc-400 font-thin text-sm">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="testimonials" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge className="mb-4 bg-white/10 text-pink-400 hover:bg-white/20 cursor-default">
+              Testimonials
+            </Badge>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              Loved by users worldwide
+            </h2>
+            <p className="text-zinc-400 font-medium">
+              See what our community has to say about their TalkSphere
+              experience
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl m-auto">
+            {[
+              {
+                name: "Alice Cooper",
+                rating: 5,
+                review:
+                  "TalkSphere has completely changed how I meet new people online. The video quality is amazing and I've made friends from all over the world!",
+              },
+              {
+                name: "Bob Saget",
+                rating: 4.5,
+                review:
+                  "I've been using TalkSphere for a few months now and I've met some amazing people. The video quality is top-notch and I love the instant matching feature.",
+              },
+              {
+                name: "Diana Ross",
+                rating: 5,
+                review:
+                  "I love using TalkSphere! The platform feels so seamless, and I've built genuine friendships with people I never imagined I'd meet.",
+              },
+            ].map((i, index) => (
+              <div
+                key={i.name}
+                className="rounded-xl border border-white/10 bg-black/50 hover:bg-gradient-to-r hover:from-pink-500/10 hover:to-purple-600/10 transition-all duration-300"
+              >
+                <div className="flex items-center gap-3 bg-zinc-950 p-6">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 overflow-hidden border">
                     <Image
-                      width={400}
-                      height={600}
-                      src="/placeholder.svg?height=600&width=400"
-                      alt="TalkSphere Interface"
-                      className="rounded-2xl shadow-2xl"
+                      src={`/pp${index + 1}.jpg`}
+                      alt="User Avatar"
+                      width="48"
+                      height="48"
+                      className="rounded-full bg-contain"
                     />
-                    <motion.div
-                      animate={{ y: [-10, 10, -10] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="absolute -right-8 top-1/4 bg-gradient-to-br from-purple-600 to-pink-500 rounded-2xl p-4 shadow-xl"
-                    >
-                      <Smile className="w-6 h-6" />
-                    </motion.div>
-                    <motion.div
-                      animate={{ y: [10, -10, 10] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="absolute -left-8 top-2/4 bg-gradient-to-br from-blue-600 to-cyan-400 rounded-2xl p-4 shadow-xl"
-                    >
-                      <Headphones className="w-6 h-6" />
-                    </motion.div>
                   </div>
-                </motion.div>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20 blur-3xl rounded-full"></div>
+                  <div>
+                    <p className="font-bold text-lg">{i.name}</p>
+                    <p className="text-sm text-zinc-400 font-thin">
+                      {i.rating} stars
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mb-4 mt-4 px-6 p-4">
+                  {Array.from({ length: Math.floor(i.rating) }).map((_, j) => (
+                    <Star
+                      key={j}
+                      className="w-4 h-4 fill-yellow-300 text-yellow-300"
+                    />
+                  ))}
+                  {i.rating % 1 !== 0 && (
+                    <StarHalf className="w-4 h-4 fill-yellow-300 text-yellow-300" />
+                  )}
+                </div>
+                <p className="text-zinc-400 font-normal px-6 pb-12">
+                  {i.review}
+                </p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Developer Profile */}
+      <section
+        id="developer"
+        className="py-28 border-t border-white/20 bg-black/50"
+      >
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-[22em,1fr] gap-8 items-center justify-center max-w-5xl px-10">
+          <Image
+            src="/face.jpg"
+            alt="Developer"
+            width="400"
+            height="400"
+            className="rounded-2xl border border-zinc-400"
+          ></Image>
+
+          <div className="w-full h-full m-auto flex flex-col justify-center text-center md:text-left">
+            <QuoteIcon className="w-8 h-8 text-white mb-4" fill="white" />
+            <p className="text-xl md:text-[2em] font-medium border-b border-zinc-200 pb-12 leading-10">
+              Every misstep is a <span className="text-purple-400">lesson</span>{" "}
+              that sharpens your <span className="text-pink-400">ability</span>{" "}
+              to move forward with more precision.
+            </p>
+            <h3 className="text-xl md:text-2xl font-bold mt-8">
+              Yazidane Hakim
+            </h3>
+            <p className="text-zinc-400 font-medium">Full Stack Developer</p>
+            <div className="flex gap-4 mt-8 justify-center md:justify-start">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-zinc-700 text-zinc-300 hover:text-white px-8"
+                onClick={() => router.push("https://zidanehakim.xyz")}
+              >
+                View Portfolio
+              </Button>
             </div>
           </div>
-        </section>
-      </SmoothSection>
+        </div>
+      </section>
 
-      {/* Premium Features */}
-      <SmoothSection>
-        <section className="py-20 px-4 relative overflow-hidden">
-          <div className="container mx-auto relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-16"
+      {/* CTA */}
+      <section className="py-20 bg-gradient-to-r from-pink-500 to-purple-600">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ready to Start Your Global Adventure?
+            </h2>
+            <p className="text-base md:text-lg mb-8 font-medium">
+              Join millions of users already connecting on TalkSphere. Your next
+              unforgettable conversation is just a click away.
+            </p>
+            <Button
+              size="lg"
+              className="bg-white text-purple-600 hover:bg-white/90 px-8 py-6 text-base font-bold"
+              onClick={() => router.push("/talk")}
             >
-              <span className="inline-block bg-gradient-to-r from-purple-600 to-pink-500 rounded-full px-4 py-1 text-sm font-medium mb-4">
-                Premium Features
-              </span>
-              <h3 className="text-4xl font-bold mb-4">
-                Unlock More Possibilities
-              </h3>
-              <p className="text-gray-300 text-xl max-w-2xl mx-auto">
-                Take your experience to the next level with our premium features
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: <Award className="w-8 h-8" />,
-                  title: "Priority Matching",
-                  description:
-                    "Get matched with users who share your interests first",
-                },
-                {
-                  icon: <Gift className="w-8 h-8" />,
-                  title: "Custom Themes",
-                  description:
-                    "Personalize your chat experience with unique themes",
-                },
-                {
-                  icon: <Star className="w-8 h-8" />,
-                  title: "Advanced Filters",
-                  description:
-                    "Find the perfect chat partners with detailed filters",
-                },
-              ].map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: index * 0.2 }}
-                  className="group relative"
-                >
-                  <div className="bg-white/5 rounded-3xl p-8 backdrop-blur-xl border border-white/10 hover:border-purple-500/50 transition-all duration-300">
-                    <div className="mb-6">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500 p-4 text-white shadow-xl">
-                        {feature.icon}
-                      </div>
-                    </div>
-                    <h4 className="text-2xl font-bold mb-4">{feature.title}</h4>
-                    <p className="text-gray-300">{feature.description}</p>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl -z-10"></div>
-                </motion.div>
-              ))}
-            </div>
+              Start Chatting Now
+            </Button>
           </div>
-        </section>
-      </SmoothSection>
-
-      {/* Call to Action */}
-      <SmoothSection>
-        <section className="py-20 px-4 relative overflow-hidden">
-          <div className="container mx-auto relative z-10">
-            <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-[3rem] p-12 backdrop-blur-xl border border-white/10">
-              <div className="max-w-3xl mx-auto text-center">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
-                >
-                  <h3 className="text-4xl font-bold mb-6">
-                    Ready to Start Chatting?
-                  </h3>
-                  <p className="text-xl text-gray-300 mb-8">
-                    Join millions of users already connecting on TalkSphere.
-                    Your next great conversation is just a click away!
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button
-                      size="lg"
-                      className="rounded-full px-8 py-6 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white transition-all duration-300 group"
-                    >
-                      Get Started Free
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="rounded-full px-8 py-6 border-white/20 hover:bg-white/10"
-                    >
-                      View Demo
-                    </Button>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </SmoothSection>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 bg-black/50 backdrop-blur-xl border-t border-white/10">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-500 rounded-2xl grid place-items-center">
-                <span className="text-white font-bold">TS</span>
-              </div>
-              <span className="text-xl font-bold">TalkSphere</span>
+      <footer className="border-t border-white/20 py-12 bg-black/50 font-normal">
+        <div className="container mx-auto px-4">
+          <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center font-normal">
+            <p className="text-sm text-zinc-400 mb-4 md:mb-0">
+              © {new Date().getFullYear()} TalkSphere. All rights reserved.
+            </p>
+            <div className="flex gap-6">
+              <button
+                className="text-zinc-400 hover:text-white"
+                onClick={() =>
+                  router.push("https://www.facebook.com/ZidanyuChan")
+                }
+              >
+                <Facebook className="w-5 h-5" />
+              </button>
+              <button
+                className="text-zinc-400 hover:text-white"
+                onClick={() =>
+                  router.push("https://www.instagram.com/yazidanehakim/")
+                }
+              >
+                <Instagram className="w-5 h-5" />
+              </button>
+              <button
+                className="text-zinc-400 hover:text-white"
+                onClick={() => router.push("https://github.com/zidanehakim")}
+              >
+                <Github className="w-5 h-5" />
+              </button>
             </div>
-            <div className="flex gap-8 text-gray-300">
-              <a href="#" className="hover:text-purple-400 transition-colors">
-                About
-              </a>
-              <a href="#" className="hover:text-purple-400 transition-colors">
-                Privacy
-              </a>
-              <a href="#" className="hover:text-purple-400 transition-colors">
-                Terms
-              </a>
-              <a href="#" className="hover:text-purple-400 transition-colors">
-                Contact
-              </a>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-white/10 text-center text-gray-300">
-            <p>&copy; 2025 TalkSphere. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </div>
-  );
-}
-
-function FeatureCard({
-  icon,
-  title,
-  description,
-  color,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  color: string;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      className="group relative"
-    >
-      <div className="bg-white/5 rounded-3xl p-8 backdrop-blur-xl border border-white/10 hover:border-purple-500/50 transition-all duration-300">
-        <div className="mb-6">
-          <div
-            className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${color} p-4 text-white shadow-xl`}
-          >
-            {icon}
-          </div>
-        </div>
-        <h4 className="text-2xl font-bold mb-4">{title}</h4>
-        <p className="text-gray-300">{description}</p>
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl -z-10"></div>
-    </motion.div>
-  );
-}
-
-function AppFeatureCard({
-  icon,
-  title,
-  description,
-  color,
-  image,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  color: string;
-  image: string;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      className="group relative"
-    >
-      <div className="bg-white/5 rounded-3xl p-8 backdrop-blur-xl border border-white/10 hover:border-purple-500/50 transition-all duration-300">
-        <div className="flex flex-col md:flex-row gap-8 items-center">
-          <div className="flex-1">
-            <div
-              className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${color} p-4 text-white shadow-xl mb-6`}
-            >
-              {icon}
-            </div>
-            <h4 className="text-2xl font-bold mb-4">{title}</h4>
-            <p className="text-gray-300">{description}</p>
-          </div>
-          <div className="w-full md:w-48">
-            <Image
-              width={400}
-              height={500}
-              src={image}
-              alt={title}
-              className="rounded-2xl shadow-xl"
-            />
-          </div>
-        </div>
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl -z-10"></div>
-    </motion.div>
   );
 }

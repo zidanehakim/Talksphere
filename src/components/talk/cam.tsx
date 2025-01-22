@@ -2,8 +2,8 @@ import React, { useRef, useEffect } from "react";
 import {
   useProtocolContext,
   ConnectionState,
-} from "../../context/ProtocolContext";
-import { useSessionContext } from "../../context/SessionContext";
+} from "../../../context/ProtocolContext";
+import { useSessionContext } from "../../../context/SessionContext";
 
 import Profile from "./profile";
 import ButtonUser from "./button-user";
@@ -175,18 +175,23 @@ export default function Cam() {
             />
           )}
 
-          <DotLottieReact
-            src={isMatchClicked ? "/find.lottie" : "/bubble.lottie"}
-            loop
-            autoplay
-            className={`transition-all ease-in-out transform m-auto ${
-              state === ConnectionState.Connected ? "hidden" : "block"
+          <div
+            className={`transition-all transform m-auto ${
+              isMatchClicked ? "opacity-80" : "opacity-70"
             } ${
               isMatchClicked
-                ? "w-[50vw] h-[calc(50vw * 0.5)] sm:w-[30vw] sm:h-[calc(30vw * 0.5)] opacity-80 scale-100"
-                : "w-[60vw] h-[calc(60vw * 0.78)] sm:w-[40vw] sm:h-[calc(40vw * 0.78)] opacity-60 scale-110"
+                ? "w-[50vw] h-[calc(50vw * 0.5)] sm:w-[30vw] sm:h-[calc(30vw * 0.5)] opacity-80"
+                : "w-[60vw] h-[calc(60vw * 0.78)] sm:w-[40vw] sm:h-[calc(40vw * 0.78)] opacity-70"
             }`}
-          />
+            hidden={state === ConnectionState.Connected}
+          >
+            <DotLottieReact
+              src={isMatchClicked ? "/find.lottie" : "/bubble.lottie"}
+              loop
+              autoplay
+              hidden={state === ConnectionState.Connected}
+            />
+          </div>
 
           {isMatchClicked && state !== ConnectionState.Connected && (
             <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2 flex-wrap">

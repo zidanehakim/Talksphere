@@ -1,11 +1,11 @@
 "use client";
-import Cam from "../../components/cam";
-import Navbar from "../../components/navbar";
+import Cam from "../../components/talk/cam";
+import Navbar from "../../components/talk/navbar";
 
 import { useProtocolContext } from "../../../context/ProtocolContext";
 import { useSessionContext } from "../../../context/SessionContext";
 
-import AddProfile from "@/components/add-profile";
+import AddProfile from "@/components/talk/add-profile";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function Home() {
@@ -13,9 +13,9 @@ export default function Home() {
   const { isEditProfileOpen } = useSessionContext();
 
   return (
-    <main className="w-full h-full grid grid-rows-[3.5em,auto] bg-gradient-to-b bg-[#050505] text-white overflow-hidden">
+    <main className="w-full h-full grid grid-rows-[3.5em,auto] bg-gradient-to-b bg-black text-white overflow-hidden">
       {!isWSConnected ? (
-        <div className="w-full h-full flex items-center justify-center absolute z-50 bg-[#050505]">
+        <div className="w-full h-full flex items-center justify-center absolute z-50 bg-black">
           <DotLottieReact
             src="/cat.lottie"
             loop

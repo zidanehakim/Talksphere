@@ -25,9 +25,9 @@ export default function Drawers({ remoteVideoRef }: DrawersProps) {
           e.currentTarget.blur();
         }}
       >
-        <Zap className="w-6 h-6 text-yellow-200" />
+        <Zap className="w-6 h-6 text-yellow-400" />
       </DrawerTrigger>
-      <DrawerContent className="p-4 shadow-lg shadow-purple-500/20 border border-gray-800 bg-black/60 backdrop-blur-sm text-gray-200">
+      <DrawerContent className="p-4 shadow-lg shadow-purple-500/20 border border-gray-800 bg-black/60 backdrop-blur-sm text-zinc-200">
         <DrawerHeader>
           <DrawerTitle>Drawer</DrawerTitle>
           <DrawerDescription>Start meeting your peer</DrawerDescription>

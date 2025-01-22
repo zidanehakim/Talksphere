@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-import { useSessionContext } from "../../context/SessionContext";
+import { useSessionContext } from "../../../context/SessionContext";
 
 export default function AddProfile() {
   const { peers, setPeers, isEditProfileOpen, setIsEditProfileOpen, minScore } =
@@ -58,7 +58,7 @@ export default function AddProfile() {
   return (
     <>
       <AlertDialog open={isEditProfileOpen}>
-        <AlertDialogContent className="max-w-[23rem] sm:max-w-sm text-gray-100 border-gray-800">
+        <AlertDialogContent className="max-w-[23rem] sm:max-w-sm text-white border-gray-800">
           <AlertDialogHeader>
             <AlertDialogTitle>Edit profile</AlertDialogTitle>
             <AlertDialogDescription className="font-normal">
@@ -79,7 +79,7 @@ export default function AddProfile() {
                 placeholder="Enter your username"
                 defaultValue={peers[0].username}
                 ref={usernameInputRef}
-                className="col-span-3 bg-gray-950 border-gray-600 font-normal"
+                className="col-span-3 bg-gray-950 border-gray-600 font-normal focus:ring-white focus:ring-2"
                 autoFocus
                 minLength={3}
                 maxLength={20}
@@ -119,19 +119,19 @@ export default function AddProfile() {
                 <ToggleGroupItem value="tolerant" className="py-6">
                   <div className="flex flex-col items-center justify-center">
                     <span>Tolerant</span>
-                    <span className="text-gray-400">😊10%</span>
+                    <span className="text-zinc-300 font-normal">😊10%</span>
                   </div>
                 </ToggleGroupItem>
                 <ToggleGroupItem value="normal" className="py-6">
                   <div className="flex flex-col items-center justify-center">
                     <span>Normal</span>
-                    <span className="text-gray-400">😐50%</span>
+                    <span className="text-zinc-300 font-normal">😐50%</span>
                   </div>
                 </ToggleGroupItem>
                 <ToggleGroupItem value="strict" className="py-6">
                   <div className="flex flex-col items-center justify-center">
                     <span>Strict</span>
-                    <span className="text-gray-400">😠90%</span>
+                    <span className="text-zinc-300 font-normal">😠90%</span>
                   </div>
                 </ToggleGroupItem>
               </ToggleGroup>

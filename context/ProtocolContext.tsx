@@ -65,7 +65,7 @@ const ProtocolContext = createContext<ProtocolContextType>(
   {} as ProtocolContextType
 );
 
-const url = "wss://2349-140-112-243-184.ngrok-free.app/ws";
+const url = "wss://9e9e-140-112-243-184.ngrok-free.app/ws";
 
 export const ProtocolContextProvider = ({
   children,

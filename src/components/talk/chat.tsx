@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { useProtocolContext } from "../../context/ProtocolContext";
-import { useSessionContext, ChatType } from "../../context/SessionContext";
+import { useProtocolContext } from "../../../context/ProtocolContext";
+import { useSessionContext, ChatType } from "../../../context/SessionContext";
 import {
   Tooltip,
   TooltipContent,
@@ -8,8 +8,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { X, Send, MessageCircleMore } from "lucide-react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 export default function Chat() {
   const { socket } = useProtocolContext();
@@ -80,7 +80,7 @@ export default function Chat() {
           >
             <div className="w-fit h-fit">
               <p
-                className={`text-sm text-gray-100 mb-1 ${
+                className={`text-sm text-white mb-1 ${
                   message.name !== "User" ? "text-left" : "text-right"
                 }`}
               >

@@ -288,14 +288,14 @@
 
 "@lottiefiles/dotlottie-react@^0.12.1":
   version "0.12.1"
-  resolved "https://registry.yarnpkg.com/@lottiefiles/dotlottie-react/-/dotlottie-react-0.12.1.tgz#b71949f28d3cf1fda73814b4b068e835a30082b9"
+  resolved "https://registry.npmjs.org/@lottiefiles/dotlottie-react/-/dotlottie-react-0.12.1.tgz"
   integrity sha512-8l0db31gqozQMC2ZfzV6NWN1cit/NOlevVgS98qC2N4vugS6CZ6IWE4EfLLJEa9DILSinENDE4K85+eIJw4MOQ==
   dependencies:
     "@lottiefiles/dotlottie-web" "0.39.0"
 
 "@lottiefiles/dotlottie-web@0.39.0":
   version "0.39.0"
-  resolved "https://registry.yarnpkg.com/@lottiefiles/dotlottie-web/-/dotlottie-web-0.39.0.tgz#bfbddcc6cb8becbd36424eebd5b294de4b66d6f5"
+  resolved "https://registry.npmjs.org/@lottiefiles/dotlottie-web/-/dotlottie-web-0.39.0.tgz"
   integrity sha512-kJWL6NEtbXQQHFK8kMfNte/5vuTHjFhL11a30s4PJSikao8IeEu+hLJH72flWHyTLpL4tmnxW3WkTKUwZ8Osug==
 
 "@next/env@15.1.2":
@@ -560,7 +560,7 @@
 
 "@radix-ui/react-slider@^1.2.2":
   version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@radix-ui/react-slider/-/react-slider-1.2.2.tgz#4ca883e3f0dea7b97d43c6cbc6c4305c64e75a86"
+  resolved "https://registry.npmjs.org/@radix-ui/react-slider/-/react-slider-1.2.2.tgz"
   integrity sha512-sNlU06ii1/ZcbHf8I9En54ZPW0Vil/yPVg4vQMcFNjrIx51jsHbFl1HYHQvCIWJSr1q0ZmA+iIs/ZTv8h7HHSA==
   dependencies:
     "@radix-ui/number" "1.1.0"
@@ -1734,15 +1734,6 @@ foreground-child@^3.1.0:
     cross-spawn "^7.0.0"
     signal-exit "^4.0.1"
 
-framer-motion@^11.15.0:
-  version "11.17.0"
-  resolved "https://registry.npmjs.org/framer-motion/-/framer-motion-11.17.0.tgz"
-  integrity sha512-uTNLH9JPMD3ad14WBt3KYRTR+If4tGPLgKTKTIIPaEBMkvazs6EkWNcmCh65qA/tyinOqIbQiuCorXX0qQsNoQ==
-  dependencies:
-    motion-dom "^11.16.4"
-    motion-utils "^11.16.0"
-    tslib "^2.4.0"
-
 fsevents@~2.3.2:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
@@ -2312,18 +2303,6 @@ minimist@^1.2.0, minimist@^1.2.6:
   version "7.1.2"
   resolved "https://registry.npmjs.org/minipass/-/minipass-7.1.2.tgz"
   integrity sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==
-
-motion-dom@^11.16.4:
-  version "11.16.4"
-  resolved "https://registry.npmjs.org/motion-dom/-/motion-dom-11.16.4.tgz"
-  integrity sha512-2wuCie206pCiP2K23uvwJeci4pMFfyQKpWI0Vy6HrCTDzDCer4TsYtT7IVnuGbDeoIV37UuZiUr6SZMHEc1Vww==
-  dependencies:
-    motion-utils "^11.16.0"
-
-motion-utils@^11.16.0:
-  version "11.16.0"
-  resolved "https://registry.npmjs.org/motion-utils/-/motion-utils-11.16.0.tgz"
-  integrity sha512-ngdWPjg31rD4WGXFi0eZ00DQQqKKu04QExyv/ymlC+3k+WIgYVFbt6gS5JsFPbJODTF/r8XiE/X+SsoT9c0ocw==
 
 ms@^2.1.1, ms@^2.1.3:
   version "2.1.3"
@@ -3264,7 +3243,7 @@ util-deprecate@^1.0.2:
 
 vaul@^1.1.2:
   version "1.1.2"
-  resolved "https://registry.yarnpkg.com/vaul/-/vaul-1.1.2.tgz#c959f8b9dc2ed4f7d99366caee433fbef91f5ba9"
+  resolved "https://registry.npmjs.org/vaul/-/vaul-1.1.2.tgz"
   integrity sha512-ZFkClGpWyI2WUQjdLJ/BaGuV6AVQiJ3uELGk3OYtP+B6yCO7Cmn9vPFXVJkRaGkOJu3m8bQMgtyzNHixULceQA==
   dependencies:
     "@radix-ui/react-dialog" "^1.1.1"

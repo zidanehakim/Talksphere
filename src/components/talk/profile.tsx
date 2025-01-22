@@ -1,4 +1,4 @@
-import { useSessionContext } from "../../context/SessionContext";
+import { useSessionContext } from "../../../context/SessionContext";
 import { useEffect, useState } from "react";
 import { Sparkles, Blend, Star } from "lucide-react";
 import "tailwindcss-animate";

@@ -2,8 +2,8 @@ import {
   useProtocolContext,
   configuration,
   ConnectionState,
-} from "../../context/ProtocolContext";
-import { useSessionContext } from "../../context/SessionContext";
+} from "../../../context/ProtocolContext";
+import { useSessionContext } from "../../../context/SessionContext";
 
 import { Slider } from "@/components/ui/slider";
 import {
@@ -117,7 +117,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
   };
 
   return (
-    <div className="sm:absolute bottom-0 inset-x-0 sm:p-6 bg-transparent bg-gradient-to-t from-black/5 via-black/5 to-transparent animate-fade-in-up">
+    <div className="sm:absolute bottom-0 inset-x-0 sm:p-6 bg-transparent bg-gradient-to-t from-black/5 via-black/5 to-transparent">
       <div className="flex flex-wrap items-center justify-center gap-4">
         {[
           isMobile.current && {
@@ -149,13 +149,13 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div
-                      className="relative group animate-fade-in-up"
+                      className="relative group"
                       style={{ animationDelay: `${0.5 + index * 0.1}s` }}
                     >
                       <Button
                         size="lg"
                         variant="secondary"
-                        className="relative rounded-xl h-12 w-12 bg-gradient-to-r from-purple-600/5 to-pink-600/5 hover:bg-white/20 border-0 overflow-hidden"
+                        className="relative rounded-xl h-12 w-12 bg-gradient-to-r from-purple-600/5 to-pink-600/5 hover:bg-gray-700 border-0 overflow-hidden"
                         onClick={control.onClick}
                         disabled={control.disabled}
                       >
@@ -174,13 +174,13 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <div
-                className="relative group animate-fade-in-up"
+                className="relative group"
                 style={{ animationDelay: "0.1s" }}
               >
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="relative rounded-xl h-12 px-4 bg-gradient-to-r from-purple-600/5 to-pink-600/5 hover:bg-white/20 border-0 overflow-hidden"
+                  className="relative rounded-xl h-12 px-4 bg-gradient-to-r from-purple-600/5 to-pink-600/5 hover:bg-gray-700 border-0 overflow-hidden"
                 >
                   <Volume2 className="w-5 h-5 relative z-10 mr-2" />
                   <Slider
@@ -208,7 +208,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <div
-                className="relative group animate-fade-in-up"
+                className="relative group"
                 style={{ animationDelay: "0.8s" }}
               >
                 <Button
@@ -231,7 +231,7 @@ export default function Buttons({ remoteVideoRef }: ButtonsProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <div
-                className="relative group animate-fade-in-up"
+                className="relative group"
                 style={{ animationDelay: "0.9s" }}
               >
                 <Button
