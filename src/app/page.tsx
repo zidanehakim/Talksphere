@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 import {
   Camera,
   Users,
@@ -20,7 +20,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import NavbarLanding from "@/components/landing/navbar-landing";
+import NavbarLanding from "../components/landing/navbar-landing";
 import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
@@ -45,7 +45,7 @@ export default function LandingPage() {
               Connect globally through high-quality video calls. Make friends,
               and explore cultures – all for free!
             </p>
-            <div className="flex flex-col sm:flex-row items-center gap-4 mb-12 w-fit h-fit mx-auto sm:mx-0">
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-12 w-fit h-fit mx-auto lg:mx-0">
               <Button
                 size="lg"
                 className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white px-8"
@@ -82,7 +82,8 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          {window.innerWidth >= 768 && (
+
+          {typeof window !== "undefined" && window.innerWidth >= 768 && (
             <div>
               <DotLottieReact src="/videochat.lottie" loop autoplay />
             </div>

@@ -8,7 +8,7 @@ import { useSessionContext } from "../../../context/SessionContext";
 import Profile from "./profile";
 import ButtonUser from "./button-user";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 
 import Buttons from "./buttons";
 import Drawers from "./drawers";

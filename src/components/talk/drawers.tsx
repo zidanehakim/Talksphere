@@ -6,7 +6,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
+} from "../ui/drawer";
 
 import Buttons from "./buttons";
 import { Zap } from "lucide-react";

@@ -5,13 +5,13 @@ import {
 } from "../../../context/ProtocolContext";
 import { useSessionContext } from "../../../context/SessionContext";
 
-import { Slider } from "@/components/ui/slider";
+import { Slider } from "../ui/slider";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "../ui/tooltip";
 import {
   Camera,
   Edit,
@@ -20,7 +20,7 @@ import {
   Loader2,
   ChevronRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../ui/button";
 import { RefObject } from "react";
 
 type ButtonsProps = {

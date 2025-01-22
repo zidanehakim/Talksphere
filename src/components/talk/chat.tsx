@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "../ui/tooltip";
 import { X, Send, MessageCircleMore } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
