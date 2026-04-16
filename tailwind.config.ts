@@ -27,6 +27,10 @@ export default {
           "0%, 100%": { transform: "translateY(-10%)" },
           "50%": { transform: "translateY(10%)" },
         },
+        "gradient-y": {
+          "0%, 100%": { backgroundPosition: "0% 0%" },
+          "50%": { backgroundPosition: "0% 100%" },
+        },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.8s ease-out forwards",
@@ -34,6 +38,7 @@ export default {
         "float-up-down-reverse":
           "float-up-down-reverse 3s ease-in-out infinite",
         "bounce-slow": "bounce-slow 2s infinite",
+        "gradient-y": "gradient-y 3s ease infinite",
       },
       colors: {
         background: "var(--background)",

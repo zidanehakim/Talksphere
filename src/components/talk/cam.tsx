@@ -203,7 +203,7 @@ export default function Cam() {
 
         {/* Animated Separator */}
         <div className="w-full lg:w-[2px] h-[2px] lg:h-full relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-500 via-pink-500 to-purple-500 animate-gradient-y" />
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-500 via-pink-500 to-purple-500 animate-gradient-y [background-size:100%_200%]" />
         </div>
 
         {/* Right Video (You) */}

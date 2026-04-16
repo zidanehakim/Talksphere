@@ -38,7 +38,7 @@ export default function LandingPage() {
         </div>
         <div className="container mx-auto px-4 relative z-10 grid grid-cols-1 lg:grid-cols-[auto,45em] gap-8 justify-center items-center max-w-7xl">
           <div className="mx-auto text-center md:text-left px-2">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 leading-tight tracking-tight">
               Meet New Friends Online
             </h1>
             <p className="text-base md:text-lg text-zinc-300 mb-8 max-w-3xl font-medium m-auto">
@@ -61,24 +61,24 @@ export default function LandingPage() {
                 <Link href="#how-it-works">Learn How it Works</Link>
               </Button>
             </div>
-            <div className="grid grid-cols-3 gap-8 mb-12 text-center">
-              <div>
-                <h4 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600">
+            <div className="grid grid-cols-3 gap-4 mb-12 text-center">
+              <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                <h4 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 tracking-tight">
                   1M+
                 </h4>
-                <p className="text-zinc-400 font-medium">Daily Active Users</p>
+                <p className="text-zinc-400 text-sm font-medium mt-1">Daily Active Users</p>
               </div>
-              <div>
-                <h4 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600">
+              <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                <h4 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 tracking-tight">
                   150+
                 </h4>
-                <p className="text-zinc-400 font-medium">Countries</p>
+                <p className="text-zinc-400 text-sm font-medium mt-1">Countries</p>
               </div>
-              <div>
-                <h4 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600">
+              <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                <h4 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 tracking-tight">
                   4.9/5
                 </h4>
-                <p className="text-zinc-400 font-medium">User Rating</p>
+                <p className="text-zinc-400 text-sm font-medium mt-1">User Rating</p>
               </div>
             </div>
           </div>
@@ -257,7 +257,7 @@ export default function LandingPage() {
             ].map((feature, i) => (
               <div
                 key={i}
-                className="group p-6 rounded-xl border border-white/10 bg-black/50 hover:bg-gradient-to-r hover:from-pink-500/10 hover:to-purple-600/10 transition-all duration-300"
+                className="group p-6 rounded-xl border border-white/10 bg-black/50 hover:bg-gradient-to-r hover:from-pink-500/10 hover:to-purple-600/10 hover:border-pink-500/20 hover:shadow-lg hover:shadow-pink-500/5 transition-all duration-300"
               >
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   {feature.icon}

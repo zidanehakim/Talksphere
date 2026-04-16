@@ -8,8 +8,10 @@ html {
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
   font-family: var(--font-plus-jakarta-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 @layer base {
@@ -20,30 +22,36 @@ body {
 
 /* Scrollbar for #chatbox */
 #chatbox::-webkit-scrollbar {
-  width: 0.5em;
-  background-color: #4a5568;
+  width: 3px;
 }
 
 #chatbox::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: #242527;
+  background: #111;
 }
 
 #chatbox::-webkit-scrollbar-thumb {
-  background-color: #0e0e0e;
+  background: #2a2a2a;
+  border-radius: 2px;
+}
+
+#chatbox::-webkit-scrollbar-thumb:hover {
+  background: #444;
 }
 
 /* Scrollbar for #preference */
 #preference::-webkit-scrollbar {
-  width: 0.5em;
-  background-color: #4a5568;
+  width: 3px;
 }
 
 #preference::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: #718096;
+  background: #111;
 }
 
 #preference::-webkit-scrollbar-thumb {
-  background-color: #1a202c;
+  background: #2a2a2a;
+  border-radius: 2px;
+}
+
+#preference::-webkit-scrollbar-thumb:hover {
+  background: #444;
 }
